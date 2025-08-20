@@ -1,4 +1,4 @@
-# RENEC Harvester v2 (IR‑root)
+# RENEC Harvester v02 (IR‑root)
 
 Site‑wide public‑data **harvester** for México’s **RENEC** platform, rooted at the **IR hub**. Discovers components, sniffs XHR/JSON, extracts entities & relationships (EC, ECE/OC, Centros, Sectores/Comités), and publishes clean, versioned datasets plus a **read‑only API** and **Next.js UI**.
 
@@ -72,7 +72,7 @@ sources:
   ir_url: "https://conocer.gob.mx/RENEC/controlador.do?comp=IR"
 
 storage:
-  sqlite_path: ./artifacts/renec_v2.sqlite
+  sqlite_path: ./artifacts/renec.sqlite
   postgres_url: null
 
 parsing:
@@ -270,13 +270,13 @@ jobs:
 
 ```bash
 # build
-docker build -t madfam/renec-harvester:v2 .
+docker build -t madfam/renec-harvester:v02 .
 
 # run harvest with artifacts mounted
 mkdir -p artifacts
 Docker run --rm \
   -v "$PWD/artifacts:/app/artifacts" \
-  madfam/renec-harvester:v2 \
+  madfam/renec-harvester:v02 \
   python -m src.cli harvest --config ./config.yaml
 
 # serve API
