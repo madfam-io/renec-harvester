@@ -1,31 +1,34 @@
-# RENEC ECE Scraper
+# RENEC Harvester v2 (IR‑root)
 
-Public-data scraper for **RENEC** (México) focusing on **Entidades de Certificación y Evaluación (ECE)** and their accredited **Estándares de Competencia (EC)**. Built for reliability, compliance, and easy downstream use (CSVs + SQLite/Postgres), with automated QA and diff reports.
+Site‑wide public‑data **harvester** for México’s **RENEC** platform, rooted at the **IR hub**. Discovers components, sniffs XHR/JSON, extracts entities & relationships (EC, ECE/OC, Centros, Sectores/Comités), and publishes clean, versioned datasets plus a **read‑only API** and **Next.js UI**.
 
-> Sponsor: Innovaciones MADFAM S.A.S. de C.V. · Owner: Data Engineering · Primary contact: Aldo Ruiz Luna
-> Timezone: America/Mexico\_City
+> Sponsor: Innovaciones MADFAM S.A.S. de C.V. · Owner: Data & Platforms · Primary contact: Aldo Ruiz Luna
+> Timezone: America/Mexico\_City · License: TBD (internal for now)
 
 ---
 
 ## ✨ Features
 
-* Headless **Playwright** extractor resilient to JS-rendered tables and modals
-* Full traversal of **pagination**, row actions (**Estándares**, **Contacto**)
-* Clean **normalized outputs**: `ece.csv`, `ec_estandar.csv`, `ece_ec.csv`, plus `renec_ece.sqlite`
-* **Diff report** (`diff_YYYYMMDD.md`) for adds/changes/removals vs. prior run
-* **QA/validation** gates (row count parity, EC code regex, state mapping)
-* **Provenance & audit**: source URL, timestamps, row hashes, run ID, failure snapshots
-* **Dockerized**; **CI-ready** (GitHub Actions schedule + manual dispatch)
+* **IR‑rooted crawl** discovers all `controlador.do?comp=*` components (domain‑scoped)
+* **Network sniffer** records XHR/fetch (URLs, headers, hashes); prefers API endpoints, falls back to DOM
+* **Pluggable drivers** for EC, Certificadores (ECE/OC), Centros, Sectores/Comités
+* **Normalized graph schema** (entities + edges with `first_seen/last_seen`)
+* **QA & diff engine** (row‑count parity, key validation, change report)
+* **Versioned outputs**: CSV + SQLite/Postgres, plus **JSON bundles** for web
+* **Read‑only FastAPI** and **Next.js UI** (finder + maps/graphs) fed by bundles/API
+* **ETag/If‑Modified‑Since** aware daily probe; weekly full harvest via GitHub Actions
+* **Artifacts for audit**: structured logs, HTML snapshots on failure, XHR payload hashes
+* **Dockerized**; Makefile targets; conservative, ToS‑friendly pacing
 
 ---
 
-## 📦 What gets extracted
+## 📦 What’s collected
 
-**ECE records**: legal name, status (if shown), location (state/municipality/CP if shown), contacts (email/phone/web), and provenance.
-**EC standards**: EC code (e.g., EC0274), optional version/title/status if available.
-**Mappings**: which ECs each ECE is accredited for.
+**Entities**: `ec` (estándares), `certificador` (ECE/OC), `centro` (CE), `sector`, `comite`, optional `ubicacion`.
+**Edges**: `ece_ec` (acreditaciones), `centro_ec` (oferta), `ec_sector` (taxonomía).
+**Provenance**: source URLs, request metadata (ETag/Last‑Modified), content hashes, timestamps.
 
-See full data model in **docs/Specification.md** (three tables: `ece`, `ec_estandar`, `ece_ec`).
+See **docs/Specification.md** (v2) for full schemas and acceptance criteria.
 
 ---
 
@@ -34,26 +37,27 @@ See full data model in **docs/Specification.md** (three tables: `ece`, `ec_estan
 ### 1) Requirements
 
 * Python **3.11+**
-* Node deps are handled by Playwright install step
-* OS: Linux/macOS/Windows (Linux recommended for CI)
+* Playwright browsers (`playwright install`)
+* Node **18+** (for UI in `/ui`)
+* Optional: Docker 24+
 
 ### 2) Install
 
 ```bash
 # clone
-git clone https://github.com/<your-org>/renec-ece-scraper.git
-cd renec-ece-scraper
+git clone https://github.com/madfam-io/renec-harvester.git
+cd renec-harvester
 
 # python deps
 pip install -r requirements.txt
 
-# playwright browsers
-playwright install
+# playwright runtime
+playwright install --with-deps
 ```
 
 ### 3) Configure
 
-Edit **`config.yaml`** (or pass `--config` to CLI):
+Create/edit **`config.yaml`**:
 
 ```yaml
 run:
@@ -65,10 +69,10 @@ run:
   timeout_sec: 30
 
 sources:
-  ece_url: "https://conocer.gob.mx/RENEC/controlador.do?comp=CE&tipoCertificador=ECE"
+  ir_url: "https://conocer.gob.mx/RENEC/controlador.do?comp=IR"
 
 storage:
-  sqlite_path: ./artifacts/renec_ece.sqlite
+  sqlite_path: ./artifacts/renec_v2.sqlite
   postgres_url: null
 
 parsing:
@@ -78,53 +82,61 @@ parsing:
 publishing:
   csv: true
   db: true
-  keep_html_snapshots: true
+  json_bundles: true
+  release_channel: ./artifacts/releases
 
 notifications:
   slack_webhook: null
+
+scheduling:
+  weekly_harvest_cron: "0 7 * * 1"   # Mondays 07:00 MX
+  daily_probe_cron: "0 8 * * *"      # Daily 08:00 MX
 ```
 
 ### 4) Run
 
 ```bash
-# full scrape (headless)
-python -m src.cli scrape --config ./config.yaml
+# 1) Map the site (IR-rooted crawl)
+python -m src.cli crawl --config ./config.yaml
 
-# validate & export
+# 2) Sniff XHR endpoints while browsing targets
+python -m src.cli sniff --config ./config.yaml
+
+# 3) Harvest (extract all components via drivers)
+python -m src.cli harvest --config ./config.yaml
+
+# 4) Validate & Diff (gate + report)
 python -m src.cli validate --config ./config.yaml
-python -m src.cli export --config ./config.yaml
-
-# diff vs. previous run
 python -m src.cli diff --config ./config.yaml
+
+# 5) Publish artifacts (CSVs/DB/JSON bundles)
+python -m src.cli publish --config ./config.yaml
+
+# Optional: serve read-only API
+python -m src.api.main
 ```
 
-Outputs will appear in `./artifacts/`:
+**Outputs** in `./artifacts/runs/<run_id>/`:
 
-* `ece.csv`, `ec_estandar.csv`, `ece_ec.csv`
-* `renec_ece.sqlite`
-* `diff_YYYYMMDD.md`
-* `logs/run_<run_id>.jsonl`, `html/` snapshots if failures occur
+* CSVs: `ec.csv`, `certificadores.csv`, `centros.csv`, `sectors.csv`, edges `ece_ec.csv`, `centro_ec.csv`, `ec_sector.csv`
+* DB: `renec_v2.sqlite` (with `v_current_*` views)
+* JSON: `/public/data/*.json` bundles (if enabled)
+* Logs: `logs/run_<run_id>.jsonl`
+* HTML/XHR: `html/` snapshots on failure, `xhr/` payload stubs & hashes
+* Report: `diff_YYYYMMDD.md`, `summary.json`
 
 ---
 
 ## 🧭 CLI Reference
 
 ```
-madfam-renec [COMMAND] [OPTIONS]
+madfam-renec [crawl|sniff|harvest|validate|diff|publish|serve|build-ui] [OPTIONS]
 
-Commands:
-  scrape      Run extractor; write DB/CSVs and artifacts
-  validate    Run QA expectations; fail job on violations
-  export      Re-generate CSVs from DB
-  diff        Compare current snapshot vs. previous
-  replay      Parse saved HTML snapshots (debug)
-  doctor      Env & browser check
-
-Common Options:
+Options:
   --config PATH      YAML config (default: ./config.yaml)
-  --headful          Visible browser for debugging
-  --dry-run          No writes to disk
-  --max-pages INT    Limit pages for testing
+  --headful          Visible browser (debug)
+  --dry-run          No writes (smoke)
+  --max-pages INT    Limit pages (smoke)
   --log-level LEVEL  DEBUG|INFO|WARN|ERROR (default: INFO)
 ```
 
@@ -132,40 +144,81 @@ Common Options:
 
 ## 🗄️ Data Model (summary)
 
-**ece**: `ece_id?`, `nombre_legal*`, `siglas?`, `estatus?`, `domicilio_texto?`, `estado?`, `estado_inegi?`, `municipio?`, `cp?`, `telefono?`, `correo?`, `sitio_web?`, `fuente_url*`, `capturado_en*`, `row_hash*`, `run_id*`
-**ec\_estandar**: `ec_clave*`, `version?`, `titulo?`, `vigente?`, `renec_url?`, `first_seen*`, `last_seen*`
-**ece\_ec**: `ece_row_hash*`, `ec_clave*`, `acreditado_desde?`, `run_id*`
+### Entities
 
-Keys & validation highlights:
+* **`ec`**: `ec_clave*`, `titulo?`, `version?`, `vigente?`, `sector_id?`, `comite_id?`, `renec_url?`, `first_seen*`, `last_seen*`
+* **`certificador` (ECE/OC)**: `cert_id*`, `tipo* (ECE|OC)`, `nombre_legal*`, `siglas?`, `estatus?`, `domicilio_texto?`, `estado?`, `estado_inegi?`, `municipio?`, `cp?`, `telefono?`, `correo?`, `sitio_web?`, `src_url*`, `first_seen*`, `last_seen*`, `row_hash*`
+* **`centro`**: `centro_id*`, `nombre*`, `cert_id?`, location/contact fields, `src_url*`, `first_seen*`, `last_seen*`
+* **`sector`**, **`comite`**: `*_id*`, `nombre*`, `src_url*`, `first_seen*`, `last_seen*`
 
-* EC code regex: `^EC\d{4}$` (non-conformers flagged)
-* State names mapped to canonical Spanish + **INEGI 2-digit** code
-* Advisory uniqueness on `(nombre_legal, estado_inegi)`
+### Relationships
+
+* **`ece_ec`**: `cert_id*`, `ec_clave*`, `acreditado_desde?`, `run_id*`
+* **`centro_ec`**: `centro_id*`, `ec_clave*`, `run_id*`
+* **`ec_sector`**: `ec_clave*`, `sector_id*`, `comite_id?`
+
+**Validation highlights**
+
+* EC code regex: `^EC\d{4}$` (non‑conformers flagged in `notes`)
+* State names → canonical + **INEGI 2‑digit** codes (see `assets/states_inegi.csv`)
+* Coverage parity vs. UI totals per component; advisory uniqueness on stable keys
 
 ---
 
-## 🐳 Docker
+## 🌐 API (read‑only, FastAPI)
+
+### Endpoints
+
+* `GET /api/ec?search=&sector=&vigente=`
+* `GET /api/certificadores?tipo=ECE|OC&estado=`
+* `GET /api/certificadores/{cert_id}`
+* `GET /api/certificadores/{cert_id}/estandares`
+* `GET /api/graph` → bipartite nodes/edges (ECE↔EC)
+
+**Run locally**
 
 ```bash
-docker build -t madfam/renec-ece-scraper:latest .
-
-# run with artifacts mounted
-mkdir -p artifacts
-Docker run --rm \
-  -v "$PWD/artifacts:/app/artifacts" \
-  madfam/renec-ece-scraper:latest \
-  python -m src.cli scrape --config ./config.yaml
+uvicorn src.api.main:app --reload --port 8787
 ```
 
-> Tip: Use `--headful` locally (requires a display) when adjusting selectors.
+---
+
+## 🖥️ UI (Next.js)
+
+A lightweight finder + directory with visualizations.
+
+**Dev**
+
+```bash
+cd ui
+npm i
+npm run dev  # http://localhost:3000
+```
+
+**Build (ISR/SSG)**
+
+```bash
+npm run build && npm run start
+```
+
+**Data sources**
+
+* Static JSON bundles from `/public/data/*.json` (exported by `publish`), or
+* Live API at `/api/*` (configure base URL in `ui/.env.local`).
+
+**Visualizations** (initial set)
+
+* Choropleth: ECE/OC density by state
+* Bipartite: EC ↔ ECE (hover highlight)
+* Timeline: newly added/retired ECs
+* Sankey: Sector → EC → ECE
 
 ---
 
 ## 🤖 CI/CD (GitHub Actions)
 
-Example workflows (see `.github/workflows/`):
-
-**ci.yaml** – lint, tests, headless smoke scrape (max 1 page)
+**ci.yaml** – lint, tests, smoke harvest (max 1 page, dry‑run)
+**harvest.yaml** – weekly full harvest + daily probe + artifact upload
 
 ```yaml
 name: CI
@@ -180,19 +233,18 @@ jobs:
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps
       - run: pytest -q
-      - run: python -m src.cli doctor
-      - run: python -m src.cli scrape --config ./config.yaml --max-pages 1 --dry-run
+      - run: python -m src.cli harvest --config ./config.yaml --max-pages 1 --dry-run
 ```
 
-**scrape.yaml** – weekly schedule + manual trigger, upload artifacts
-
 ```yaml
-name: Scrape
+name: Harvest
 on:
-  schedule: [{ cron: '0 7 * * 1' }]  # Mondays 07:00 America/Mexico_City approx
+  schedule:
+    - cron: '0 7 * * 1'   # weekly (MX)
+    - cron: '0 8 * * *'   # daily probe
   workflow_dispatch: {}
 jobs:
-  scrape:
+  harvest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -200,13 +252,36 @@ jobs:
         with: { python-version: '3.11' }
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps
-      - run: python -m src.cli scrape --config ./config.yaml
+      - run: python -m src.cli crawl --config ./config.yaml
+      - run: python -m src.cli sniff --config ./config.yaml
+      - run: python -m src.cli harvest --config ./config.yaml
       - run: python -m src.cli validate --config ./config.yaml
       - run: python -m src.cli diff --config ./config.yaml
+      - run: python -m src.cli publish --config ./config.yaml
       - uses: actions/upload-artifact@v4
         with:
           name: artifacts
           path: artifacts/**
+```
+
+---
+
+## 🐳 Docker
+
+```bash
+# build
+docker build -t madfam/renec-harvester:v2 .
+
+# run harvest with artifacts mounted
+mkdir -p artifacts
+Docker run --rm \
+  -v "$PWD/artifacts:/app/artifacts" \
+  madfam/renec-harvester:v2 \
+  python -m src.cli harvest --config ./config.yaml
+
+# serve API
+Docker run --rm -p 8787:8787 madfam/renec-harvester:v2 \
+  uvicorn src.api.main:app --host 0.0.0.0 --port 8787
 ```
 
 ---
@@ -220,91 +295,82 @@ pytest -q
 # lint
 ruff check src tests
 
-# make targets (optional)
+# make (optional)
 make install
-make scrape
-make export
+make crawl
+make sniff
+make harvest
+make validate
 make diff
-make test
-make lint
+make publish
+make build-ui
 ```
 
-**Project layout**
+**Repo layout**
 
 ```
 / (repo root)
 ├─ src/
 │  ├─ cli.py
-│  ├─ extractor/
-│  │  ├─ browser.py
-│  │  ├─ selectors.py
-│  │  └─ parser.py
-│  ├─ models.py
-│  ├─ normalize.py
-│  ├─ storage.py
-│  ├─ qa.py
-│  ├─ diff.py
-│  └─ utils.py
-├─ assets/
-│  └─ states_inegi.csv
-├─ tests/
-│  ├─ test_regex.py
-│  ├─ test_normalize.py
-│  ├─ test_parser.py
-│  └─ fixtures/
-│     ├─ rows_sample.html
-│     ├─ modal_estandares.html
-│     └─ modal_contacto.html
-├─ docs/
-│  └─ Specification.md
-├─ artifacts/  # outputs (gitignored)
+│  ├─ discovery/        # crawler + recorder
+│  ├─ drivers/          # ec, certificadores, centros, sectores
+│  ├─ registry/         # selectors.py + endpoints.json
+│  ├─ parse/            # normalizer + validators
+│  ├─ storage/          # db + export
+│  ├─ qa/               # expectations + diff
+│  ├─ publisher/        # bundles + release
+│  └─ api/              # FastAPI
+├─ ui/                  # Next.js app
+├─ assets/              # states_inegi.csv
+├─ tests/               # unit + integration + fixtures
+├─ artifacts/           # run outputs (gitignored)
+├─ docs/                # spec + crawl map
 ├─ config.yaml
 ├─ requirements.txt
 ├─ Dockerfile
 ├─ Makefile
-└─ .github/workflows/
-   ├─ ci.yaml
-   └─ scrape.yaml
+└─ .github/workflows/   # ci.yaml, harvest.yaml
 ```
-
----
-
-## 🛡️ Compliance & Ethics
-
-* Public institutional data only; respect site ToS/robots and maintain human-like pacing.
-* No storage of non-public PII. Rotate artifacts; keep 12 months by default.
-* Keep **provenance** (source URL, timestamp). Save HTML snapshots on failure for audit/troubleshooting.
-* Store secrets (DB URLs, webhooks) in environment / GitHub Encrypted Secrets.
 
 ---
 
 ## 🆘 Troubleshooting
 
-* **Table rows never appear** → Confirm Playwright installed browsers; use `--headful` and inspect selectors in `src/extractor/selectors.py`.
-* **Pagination stops early** → Update `PAGINATION_NEXT` selector; some UIs disable via CSS—check `is_disabled()` logic.
-* **Modals not found** → Increase `timeout_sec`, ensure `MODAL_ROOT` covers framework in use (`.modal`, `.ui-dialog`, `.swal2-popup`).
-* **Contact parsing misses fields** → Adjust regexes in `parser.py`; some emails/phones may be embedded in labels.
-* **State mapping gaps** → Update `assets/states_inegi.csv` aliases.
+* **No rows appear** → Ensure Playwright browsers installed; try `--headful` and inspect `registry/selectors.py`.
+* **Pagination stalls** → Adjust `PAGINATION_NEXT` selector; some UIs disable via CSS.
+* **Modals not found** → Expand `MODAL` selector to include framework variants (`.modal`, `.ui-dialog`, `.swal2-popup`).
+* **Low contact parse rate** → Tune regexes in `parse/normalizer.py`; some fields include labels or punctuation.
+* **State mapping gaps** → Add aliases to `assets/states_inegi.csv`; run unit tests.
+* **Large payloads** → Increase size caps in recorder; enable full retention via config.
 
 ---
 
-## 📄 License & Attribution
+## 🛡️ Compliance & Ethics
 
-* Copyright © Innovaciones MADFAM S.A.S. de C.V.
-* Distributed internally; specify license before public release.
+* Public institutional data only; **no PII**; respect site ToS and robots directives.
+* Polite, low‑rate crawling; single tab/context; backoff with jitter; identify as research UA.
+* Keep provenance (timestamps, URLs, hashes); rotate artifacts (12‑month window by default).
+* Store secrets in environment/GitHub Encrypted Secrets.
 
 ---
 
 ## 🤝 Contributing
 
-* Create a feature branch, open a PR, and ensure CI is green.
-* For selector changes, update `SELECTORS.md` (in `src/extractor/`) and add/adjust fixtures + tests.
+* Open a PR with green CI (tests + smoke harvest).
+* For selector/endpoint changes: update `registry/selectors.py`, `registry/endpoints.json`, fixtures under `tests/fixtures/`, and **docs/CrawlMap.md**.
+* Use conventional commits; document breaking schema changes in **CHANGELOG.md** and bump dataset/API **semver**.
+
+---
+
+## 📄 License & Attribution
+
+* © Innovaciones MADFAM S.A.S. de C.V.
+* License: TBD (internal use). Before any public release, set explicit license and review compliance.
 
 ---
 
 ## 📫 Contact
 
 * Product/strategy: **Aldo Ruiz Luna**
-* Maintainers: **Data Engineering @ MADFAM**
-
-> *Nota:* Se aceptan PRs con mejoras de documentación en español. Para dudas operativas, abre un issue con logs adjuntos y, si es posible, un **HTML snapshot** del caso fallido.
+* Maintainers: **Data & Platforms @ MADFAM**
+* Issues: please attach `summary.json` + relevant HTML snapshot or XHR hash reference.
