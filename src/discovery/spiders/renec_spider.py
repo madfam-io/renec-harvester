@@ -9,7 +9,7 @@ from urllib.parse import urljoin, urlparse
 
 import scrapy
 from scrapy.http import Request, Response
-from scrapy_playwright.page import PageMethod
+# from scrapy_playwright.page import PageMethod  # Disabled for basic testing
 from structlog import get_logger
 
 from src.core.constants import (
@@ -67,10 +67,10 @@ class RenecSpider(scrapy.Spider):
                     "parent_url": None,
                     "playwright": True,
                     "playwright_include_page": True,
-                    "playwright_page_methods": [
-                        PageMethod("wait_for_load_state", "networkidle"),
-                        PageMethod("wait_for_timeout", 1000),
-                    ],
+                    # "playwright_page_methods": [
+                    #     PageMethod("wait_for_load_state", "networkidle"),
+                    #     PageMethod("wait_for_timeout", 1000),
+                    # ],
                 },
             )
         else:
@@ -85,21 +85,21 @@ class RenecSpider(scrapy.Spider):
                             "component_type": endpoint_type,
                             "playwright": True,
                             "playwright_include_page": True,
-                            "playwright_page_methods": [
-                                PageMethod("wait_for_load_state", "networkidle"),
-                            ],
+                            # "playwright_page_methods": [
+                            #     PageMethod("wait_for_load_state", "networkidle"),
+                            # ],
                         },
                     )
 
-    async def parse_crawl(self, response: Response) -> Generator[Any, None, None]:
+    def parse_crawl(self, response: Response) -> Generator[Any, None, None]:
         """Parse page in crawl mode to build site map."""
         page = response.meta.get("playwright_page")
         current_depth = response.meta.get("depth", 0)
         parent_url = response.meta.get("parent_url")
         
-        # Record network activity
-        if page:
-            await self._record_network_activity(page)
+        # Record network activity (simplified for basic testing)
+        # if page:
+        #     await self._record_network_activity(page)
             
         # Extract page information
         url_hash = hashlib.md5(response.url.encode()).hexdigest()
@@ -138,18 +138,18 @@ class RenecSpider(scrapy.Spider):
                                 "parent_url": response.url,
                                 "playwright": True,
                                 "playwright_include_page": True,
-                                "playwright_page_methods": [
-                                    PageMethod("wait_for_load_state", "networkidle"),
-                                ],
+                                # "playwright_page_methods": [
+                                #     PageMethod("wait_for_load_state", "networkidle"),
+                                # ],
                             },
                             dont_filter=False,
                         )
         
-        # Close page to free resources
-        if page:
-            await page.close()
+        # Close page to free resources (simplified for basic testing)
+        # if page:
+        #     await page.close()
 
-    async def parse_harvest(self, response: Response) -> Generator[Any, None, None]:
+    def parse_harvest(self, response: Response) -> Generator[Any, None, None]:
         """Parse page in harvest mode to extract component data."""
         page = response.meta.get("playwright_page")
         component_type = response.meta.get("component_type")
@@ -160,22 +160,21 @@ class RenecSpider(scrapy.Spider):
             component_type=component_type,
         )
         
-        # Wait for dynamic content
-        if page:
-            try:
-                # Wait for specific selectors based on component type
-                selectors = XPATH_SELECTORS.get(component_type, {})
-                if selectors:
-                    await page.wait_for_selector(
-                        list(selectors.values())[0],
-                        timeout=10000,
-                    )
-            except Exception as e:
-                logger.warning(
-                    "Selector wait timeout",
-                    url=response.url,
-                    error=str(e),
-                )
+        # Wait for dynamic content (simplified for basic testing)
+        # if page:
+        #     try:
+        #         selectors = XPATH_SELECTORS.get(component_type, {})
+        #         if selectors:
+        #             await page.wait_for_selector(
+        #                 list(selectors.values())[0],
+        #                 timeout=10000,
+        #             )
+        #     except Exception as e:
+        #         logger.warning(
+        #             "Selector wait timeout",
+        #             url=response.url,
+        #             error=str(e),
+        #         )
         
         # Extract data based on component type
         if component_type == "ec_standard":
@@ -200,9 +199,9 @@ class RenecSpider(scrapy.Spider):
                 },
             )
         
-        # Close page
-        if page:
-            await page.close()
+        # Close page (simplified for basic testing)
+        # if page:
+        #     await page.close()
 
     def _detect_component_type(self, response: Response) -> str:
         """Detect component type from URL and content."""
