@@ -14,7 +14,7 @@ from .base import Base
 class Certificador(Base):
     """Certificador (ECE/OC) model."""
     
-    __tablename__ = 'certificadores'
+    __tablename__ = 'certificadores_v2'
     
     # Primary key
     id = Column(Integer, primary_key=True)

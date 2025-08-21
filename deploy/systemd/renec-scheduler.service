@@ -1,0 +1,30 @@
+[Unit]
+Description=RENEC Harvester Scheduler
+After=network.target postgresql.service redis.service
+
+[Service]
+Type=forking
+User=renec
+Group=renec
+WorkingDirectory=/opt/renec-harvester
+Environment="PATH=/opt/renec-harvester/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="DATABASE_URL=postgresql://renec:renec_pass@localhost:5432/renec_harvester"
+Environment="REDIS_URL=redis://:renec_redis_pass@localhost:6379/0"
+Environment="PYTHONPATH=/opt/renec-harvester"
+
+# Celery Beat
+ExecStart=/opt/renec-harvester/venv/bin/celery -A src.scheduler.daily_probe beat \
+    --loglevel=info \
+    --pidfile=/var/run/renec/celerybeat.pid \
+    --schedule=/var/lib/renec/celerybeat-schedule
+
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/var/log/renec/scheduler.log
+StandardError=append:/var/log/renec/scheduler-error.log
+
+[Install]
+WantedBy=multi-user.target

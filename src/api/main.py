@@ -28,23 +28,35 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="RENEC Harvester API",
     description="REST API for controlling RENEC data harvesting operations",
-    version="0.1.0",
-    lifespan=lifespan
+    version="1.0.0",
+    lifespan=lifespan,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json"
 )
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001", "http://localhost:3000"],
+    allow_origins=["http://localhost:3001", "http://localhost:3000", "http://localhost:*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Include routers
-app.include_router(spider.router, prefix="/api", tags=["spider"])
-app.include_router(data.router, prefix="/api", tags=["data"])  
-app.include_router(stats.router, prefix="/api", tags=["stats"])
+app.include_router(spider.router, prefix="/api/v1", tags=["spider"])
+app.include_router(data.router, prefix="/api/v1", tags=["data"])  
+app.include_router(stats.router, prefix="/api/v1", tags=["statistics"])
+
+# Sprint 2 routers
+from .routers import ec_standards, certificadores, centros, sectores, search
+
+app.include_router(ec_standards.router, prefix="/api/v1", tags=["EC Standards"])
+app.include_router(certificadores.router, prefix="/api/v1", tags=["Certificadores"])
+app.include_router(centros.router, prefix="/api/v1", tags=["Centros"])
+app.include_router(sectores.router, prefix="/api/v1", tags=["Sectores & Comités"])
+app.include_router(search.router, prefix="/api/v1", tags=["Search"])
 
 
 @app.get("/")

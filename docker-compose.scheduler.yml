@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Celery Beat Scheduler
+  celery-beat:
+    build: .
+    container_name: renec-celery-beat
+    command: celery -A src.scheduler.daily_probe beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://renec:renec_pass@postgres:5432/renec_harvester
+      - REDIS_URL=redis://:renec_redis_pass@redis:6379/0
+      - PYTHONPATH=/app
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - renec-network
+    restart: unless-stopped
+
+  # Celery Worker for harvest queue
+  celery-worker-harvest:
+    build: .
+    container_name: renec-celery-worker-harvest
+    command: celery -A src.scheduler.daily_probe worker --loglevel=info --queues=harvest --concurrency=2
+    environment:
+      - DATABASE_URL=postgresql://renec:renec_pass@postgres:5432/renec_harvester
+      - REDIS_URL=redis://:renec_redis_pass@redis:6379/0
+      - PYTHONPATH=/app
+    volumes:
+      - ./src:/app/src
+      - ./artifacts:/app/artifacts
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - renec-network
+    restart: unless-stopped
+
+  # Celery Worker for monitoring queue
+  celery-worker-monitoring:
+    build: .
+    container_name: renec-celery-worker-monitoring
+    command: celery -A src.scheduler.daily_probe worker --loglevel=info --queues=monitoring --concurrency=1
+    environment:
+      - DATABASE_URL=postgresql://renec:renec_pass@postgres:5432/renec_harvester
+      - REDIS_URL=redis://:renec_redis_pass@redis:6379/0
+      - PYTHONPATH=/app
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - renec-network
+    restart: unless-stopped
+
+  # Flower - Celery monitoring
+  flower:
+    image: mher/flower:0.9.7
+    container_name: renec-flower
+    command: flower --broker=redis://:renec_redis_pass@redis:6379/0 --port=5555 --basic_auth=admin:renec_flower_pass
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://:renec_redis_pass@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:renec_redis_pass@redis:6379/0
+    depends_on:
+      - redis
+    networks:
+      - renec-network
+    restart: unless-stopped
+
+networks:
+  renec-network:
+    external: true

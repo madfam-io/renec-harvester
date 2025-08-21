@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: renec-harvester
+  labels:
+    name: renec-harvester
+    environment: production

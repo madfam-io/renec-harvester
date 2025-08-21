@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: renec-harvester-config
+  namespace: renec-harvester
+data:
+  # Application settings
+  APP_ENV: "production"
+  API_PORT: "8000"
+  UI_PORT: "3000"
+  
+  # Database settings (non-sensitive)
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "renec_harvester"
+  
+  # Redis settings (non-sensitive)
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  
+  # Monitoring
+  PROMETHEUS_ENABLED: "true"
+  PROMETHEUS_PORT: "9090"
+  
+  # Harvest settings
+  MAX_CONCURRENT_REQUESTS: "10"
+  DOWNLOAD_DELAY: "0.5"
+  HARVEST_TIMEOUT: "3600"
+  
+  # RENEC settings
+  RENEC_BASE_URL: "https://conocer.gob.mx"
+  
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: renec-harvester
+data:
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    
+    http {
+      upstream api_backend {
+        server api-service:8000;
+      }
+      
+      upstream ui_backend {
+        server ui-service:3000;
+      }
+      
+      # Rate limiting
+      limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+      limit_req_zone $binary_remote_addr zone=ui_limit:10m rate=50r/s;
+      
+      # Gzip compression
+      gzip on;
+      gzip_types text/plain application/json application/javascript text/css;
+      
+      server {
+        listen 80;
+        server_name _;
+        
+        # Security headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" always;
+        
+        # API routes
+        location /api/ {
+          limit_req zone=api_limit burst=20 nodelay;
+          
+          proxy_pass http://api_backend;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          
+          # Timeouts
+          proxy_connect_timeout 60s;
+          proxy_send_timeout 60s;
+          proxy_read_timeout 60s;
+        }
+        
+        # UI routes
+        location / {
+          limit_req zone=ui_limit burst=50 nodelay;
+          
+          proxy_pass http://ui_backend;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          
+          # WebSocket support for Next.js hot reload
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+        }
+        
+        # Health check endpoint
+        location /health {
+          access_log off;
+          return 200 "healthy\n";
+        }
+      }
+    }

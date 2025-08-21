@@ -1,0 +1,203 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to deploy (git tag or sha)'
+        required: true
+        default: 'latest'
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: renec-harvester
+  EKS_CLUSTER_NAME: renec-harvester-prod
+
+jobs:
+  validate:
+    name: Validate Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.validate.outputs.tag }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.version }}
+    
+    - name: Validate inputs
+      id: validate
+      run: |
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        echo "Version: ${{ github.event.inputs.version }}"
+        
+        if [[ "${{ github.event.inputs.version }}" == "latest" ]]; then
+          echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+        else
+          echo "tag=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        fi
+
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+    
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+    
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'v3.12.0'
+    
+    - name: Deploy with Helm
+      run: |
+        helm upgrade --install renec-harvester ./helm/renec-harvester \
+          --namespace renec-harvester \
+          --create-namespace \
+          --set image.tag=${{ needs.validate.outputs.image-tag }} \
+          --set environment=${{ github.event.inputs.environment }} \
+          --values ./helm/renec-harvester/values.${{ github.event.inputs.environment }}.yaml \
+          --wait \
+          --timeout 10m
+    
+    - name: Verify deployment
+      run: |
+        kubectl rollout status deployment/api -n renec-harvester
+        kubectl rollout status deployment/ui -n renec-harvester
+        kubectl rollout status deployment/celery-worker -n renec-harvester
+    
+    - name: Run smoke tests
+      run: |
+        API_URL=$(kubectl get svc api-service -n renec-harvester -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        echo "API URL: http://${API_URL}"
+        
+        # Wait for API to be ready
+        for i in {1..30}; do
+          if curl -f "http://${API_URL}/health" > /dev/null 2>&1; then
+            echo "API is healthy"
+            break
+          fi
+          echo "Waiting for API to be ready... ($i/30)"
+          sleep 10
+        done
+        
+        # Run basic smoke tests
+        curl -f "http://${API_URL}/health"
+        curl -f "http://${API_URL}/api/v1/stats"
+
+  post-deploy:
+    name: Post-Deployment Tasks
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+    
+    - name: Run database migrations
+      run: |
+        POD=$(kubectl get pods -n renec-harvester -l app=api -o jsonpath='{.items[0].metadata.name}')
+        kubectl exec -n renec-harvester $POD -- alembic upgrade head
+    
+    - name: Clear caches
+      run: |
+        POD=$(kubectl get pods -n renec-harvester -l app=redis -o jsonpath='{.items[0].metadata.name}')
+        kubectl exec -n renec-harvester $POD -- redis-cli FLUSHDB
+    
+    - name: Tag deployment
+      run: |
+        git tag -a "deploy-${{ github.event.inputs.environment }}-$(date +%Y%m%d-%H%M%S)" \
+          -m "Deployed ${{ needs.validate.outputs.image-tag }} to ${{ github.event.inputs.environment }}"
+        git push origin --tags
+    
+    - name: Create deployment record
+      run: |
+        cat > deployment-record.json <<EOF
+        {
+          "environment": "${{ github.event.inputs.environment }}",
+          "version": "${{ needs.validate.outputs.image-tag }}",
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "deployed_by": "${{ github.actor }}",
+          "github_run_id": "${{ github.run_id }}"
+        }
+        EOF
+        
+        aws s3 cp deployment-record.json \
+          s3://renec-harvester-deployments/${{ github.event.inputs.environment }}/$(date +%Y%m%d-%H%M%S).json
+
+  rollback:
+    name: Rollback if Failed
+    runs-on: ubuntu-latest
+    needs: [deploy, post-deploy]
+    if: failure()
+    
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+    
+    - name: Rollback deployment
+      run: |
+        echo "Rolling back deployment..."
+        helm rollback renec-harvester -n renec-harvester
+        
+        # Wait for rollback to complete
+        kubectl rollout status deployment/api -n renec-harvester
+        kubectl rollout status deployment/ui -n renec-harvester
+    
+    - name: Notify rollback
+      run: |
+        echo "⚠️ Deployment failed and was rolled back"
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        echo "Failed version: ${{ needs.validate.outputs.image-tag }}"

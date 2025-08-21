@@ -14,7 +14,7 @@ from .base import Base
 class ECStandard(Base):
     """EC Standard (Estándar de Competencia) model."""
     
-    __tablename__ = 'ec_standards'
+    __tablename__ = 'ec_standards_v2'
     
     # Primary key
     id = Column(Integer, primary_key=True)
