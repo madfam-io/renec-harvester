@@ -43,7 +43,7 @@ class RenecSpider(scrapy.Spider):
         """
         super().__init__(*args, **kwargs)
         self.mode = mode
-        self.max_depth = max_depth
+        self.max_depth = int(max_depth)  # Ensure it's an integer
         self.visited_urls = set()
         self.network_requests = []
         self.session_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
@@ -58,37 +58,44 @@ class RenecSpider(scrapy.Spider):
     def start_requests(self) -> Generator[Request, None, None]:
         """Generate initial requests based on mode."""
         if self.mode == "crawl":
-            # Start from main page for IR-rooted crawl
+            # Start from IR hub for mapping mode
+            ir_url = f"{RENEC_BASE_URL}/controlador.do?comp=IR"
             yield Request(
-                RENEC_BASE_URL,
+                ir_url,
                 callback=self.parse_crawl,
                 meta={
                     "depth": 0,
                     "parent_url": None,
-                    "playwright": True,
-                    "playwright_include_page": True,
-                    # "playwright_page_methods": [
-                    #     PageMethod("wait_for_load_state", "networkidle"),
-                    #     PageMethod("wait_for_timeout", 1000),
-                    # ],
+                    "dont_filter": True,
                 },
+                headers={
+                    'User-Agent': 'RENEC-Harvester/0.2.0 (+https://github.com/innovacionesmadfam/renec-harvester)',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'es-MX,es;q=0.9,en;q=0.8',
+                },
+                errback=self.handle_error,
             )
         else:
             # Start from known endpoints for harvest mode
             for endpoint_type, endpoints in RENEC_ENDPOINTS.items():
+                if endpoint_type == "ir_hub":
+                    continue  # Skip IR hub in harvest mode
+                
                 for endpoint in endpoints:
-                    url = urljoin(RENEC_BASE_URL, endpoint)
+                    url = f"{RENEC_BASE_URL}{endpoint}"
                     yield Request(
                         url,
                         callback=self.parse_harvest,
                         meta={
                             "component_type": endpoint_type,
-                            "playwright": True,
-                            "playwright_include_page": True,
-                            # "playwright_page_methods": [
-                            #     PageMethod("wait_for_load_state", "networkidle"),
-                            # ],
+                            "dont_filter": True,
                         },
+                        headers={
+                            'User-Agent': 'RENEC-Harvester/0.2.0 (+https://github.com/innovacionesmadfam/renec-harvester)',
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                            'Accept-Language': 'es-MX,es;q=0.9,en;q=0.8',
+                        },
+                        errback=self.handle_error,
                     )
 
     def parse_crawl(self, response: Response) -> Generator[Any, None, None]:
@@ -136,12 +143,13 @@ class RenecSpider(scrapy.Spider):
                             meta={
                                 "depth": current_depth + 1,
                                 "parent_url": response.url,
-                                "playwright": True,
-                                "playwright_include_page": True,
-                                # "playwright_page_methods": [
-                                #     PageMethod("wait_for_load_state", "networkidle"),
-                                # ],
                             },
+                            headers={
+                                'User-Agent': 'RENEC-Harvester/0.2.0 (+https://github.com/innovacionesmadfam/renec-harvester)',
+                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                'Accept-Language': 'es-MX,es;q=0.9,en;q=0.8',
+                            },
+                            errback=self.handle_error,
                             dont_filter=False,
                         )
         
@@ -194,9 +202,13 @@ class RenecSpider(scrapy.Spider):
                 callback=self.parse_harvest,
                 meta={
                     "component_type": component_type,
-                    "playwright": True,
-                    "playwright_include_page": True,
                 },
+                headers={
+                    'User-Agent': 'RENEC-Harvester/0.2.0 (+https://github.com/innovacionesmadfam/renec-harvester)',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'es-MX,es;q=0.9,en;q=0.8',
+                },
+                errback=self.handle_error,
             )
         
         # Close page (simplified for basic testing)
@@ -327,6 +339,31 @@ class RenecSpider(scrapy.Spider):
                 url=response.url,
                 extracted_at=datetime.utcnow().isoformat(),
             )
+
+    def handle_error(self, failure):
+        """Handle request errors."""
+        request = failure.request
+        logger.error(
+            "Request failed",
+            url=request.url,
+            error=failure.value,
+            status=getattr(failure.value, 'response', {}).get('status', 'unknown') if hasattr(failure.value, 'response') else 'network_error',
+        )
+        
+        # Still create an item for failed requests to track them
+        item = CrawlMapItem(
+            url=request.url,
+            url_hash=hashlib.md5(request.url.encode()).hexdigest(),
+            title="ERROR - Request Failed",
+            type="error",
+            parent_url=request.meta.get("parent_url"),
+            depth=request.meta.get("depth", 0),
+            timestamp=datetime.utcnow().isoformat(),
+            status_code=getattr(failure.value, 'response', {}).get('status', 0) if hasattr(failure.value, 'response') else 0,
+            content_hash="error",
+        )
+        
+        return item
 
     def closed(self, reason: str) -> None:
         """Spider closed callback."""

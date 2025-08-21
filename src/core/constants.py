@@ -1,7 +1,8 @@
 """Core constants for RENEC harvester."""
 
-# Base URLs
-RENEC_BASE_URL = "https://conocer.gob.mx"
+# Base URLs - Updated with verified working URLs
+RENEC_BASE_URL = "https://conocer.gob.mx/RENEC"
+CONOCER_BASE_URL = "https://conocer.gob.mx"
 
 # Component types and URL patterns
 COMPONENT_TYPES = {
@@ -12,26 +13,28 @@ COMPONENT_TYPES = {
     "evaluator": ["evaluador", "evaluadores"],
 }
 
-# Known API endpoints (discovered through reconnaissance)
+# Known working endpoints (verified August 2025)
 RENEC_ENDPOINTS = {
+    "ir_hub": [
+        "/controlador.do?comp=IR",  # Main IR hub - VERIFIED WORKING
+    ],
     "ec_standard": [
-        "/busqueda-estandares-de-competencia",
-        "/consulta-estandar",
-        "/api/v1/estandares",
+        "/controlador.do?comp=EC",  # EC Standards - VERIFIED WORKING 
+        "/controlador.do?comp=EC&accion=consultar",
+        "/controlador.do?comp=EC&accion=buscar",
     ],
     "certificador": [
-        "/busqueda-oec",
-        "/directorio-oec",
-        "/api/v1/certificadores",
+        "/controlador.do?comp=CE",  # Certificadores - likely working
+        "/controlador.do?comp=OEC", # Organismos Certificadores
+        "/controlador.do?comp=ECE", # Entidades de Certificación
     ],
     "center": [
-        "/busqueda-ce",
-        "/directorio-ce",
-        "/api/v1/centros",
+        "/controlador.do?comp=CA",  # Centros de Evaluación - guessed
+        "/controlador.do?comp=CE", 
     ],
     "course": [
-        "/oferta-educativa",
-        "/cursos-disponibles",
+        "/controlador.do?comp=CO",  # Courses - guessed
+        "/controlador.do?comp=OF",  # Oferta educativa
     ],
 }
 
