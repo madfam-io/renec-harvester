@@ -1,0 +1,68 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.coverage
+htmlcov/
+.tox
+.venv
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Artifacts
+artifacts/
+downloads/
+exports/
+snapshots/
+
+# Documentation
+*.md
+docs/
+
+# CI/CD
+.github/
+
+# Environment
+.env
+.env.*
+
+# Node.js (if any)
+node_modules/
+npm-debug.log
+
+# Testing
+tests/
+coverage.xml
+pytest.ini
+
+# Development tools
+.ruff_cache/
+mypy.ini
+.pylintrc

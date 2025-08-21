@@ -1,0 +1,261 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "RENEC Harvester Dashboard",
+    "tags": ["renec", "harvester", "scraping"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Harvest Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(renec_harvest_items_extracted_total)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "displayName": "Total Items Harvested",
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Spiders",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "renec_harvest_active_spiders",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "displayName": "Active Spiders",
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Crawl Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(renec_crawl_urls_visited_total[5m])",
+            "legendFormat": "URLs/sec",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "URLs per second"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Items by Component Type",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (component_type) (renec_harvest_items_extracted_total)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 0,
+          "y": 17
+        }
+      },
+      {
+        "id": 5,
+        "title": "Extraction Errors",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (component_type, error_type) (renec_harvest_extraction_errors_total))",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 9,
+          "w": 12,
+          "x": 12,
+          "y": 17
+        }
+      },
+      {
+        "id": 6,
+        "title": "API Response Times",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(renec_api_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(renec_api_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Response time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 26
+        }
+      },
+      {
+        "id": 7,
+        "title": "Database Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(renec_db_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "Query time (95th percentile)",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Query time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 26
+        }
+      },
+      {
+        "id": 8,
+        "title": "Cache Hit Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(renec_api_cache_hits_total[5m]) / (rate(renec_api_cache_hits_total[5m]) + rate(renec_api_cache_misses_total[5m])) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "displayName": "Cache Hit Rate",
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 34
+        }
+      },
+      {
+        "id": 9,
+        "title": "Active Connections",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "renec_api_active_connections",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "displayName": "Active Connections",
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 34
+        }
+      },
+      {
+        "id": 10,
+        "title": "System Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"renec-api\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "displayName": "API Status",
+            "unit": "short",
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 16,
+          "y": 34
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 30,
+    "version": 1,
+    "uid": "renec-harvester"
+  }
+}
