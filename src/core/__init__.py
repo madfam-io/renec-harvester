@@ -1,0 +1,1 @@
+"""Core module with shared constants and utilities."""
