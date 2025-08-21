@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from src import __version__
-from src.cli.commands import crawl, db, harvest, validate
+from src.cli.commands import crawl, db, harvest, validate, diff, export
 
 # Create Typer app
 app = typer.Typer(
@@ -28,6 +28,8 @@ app.add_typer(crawl.app, name="crawl", help="Site crawling and mapping commands"
 app.add_typer(harvest.app, name="harvest", help="Data harvesting commands")
 app.add_typer(db.app, name="db", help="Database management commands")
 app.add_typer(validate.app, name="validate", help="Data validation commands")
+app.add_typer(diff.app, name="diff", help="Diff and change detection commands")
+app.add_typer(export.app, name="export", help="Data export commands")
 
 
 @app.command()

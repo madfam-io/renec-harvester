@@ -246,3 +246,176 @@ def coverage():
         console.print(f"Total Certificadores: {total_cert:,}")
         console.print(f"Total Evaluation Centers: {session.query(EvaluationCenter).count():,}")
         console.print(f"Total Courses: {session.query(Course).count():,}")
+
+
+@app.command()
+def quality(
+    source: str = typer.Option("database", "--source", "-s", help="Data source: database, json, csv"),
+    input_file: Optional[Path] = typer.Option(None, "--input", "-i", help="Input file for json/csv validation"),
+    output: Path = typer.Option("artifacts/validation_report.json", "--output", "-o", help="Output report path"),
+    entity_type: str = typer.Option("all", "--entity", "-e", help="Entity type to validate"),
+    strict: bool = typer.Option(False, "--strict", help="Use strict validation rules"),
+    sample_size: Optional[int] = typer.Option(None, "--sample", help="Validate only a sample of records"),
+):
+    """Validate data quality using Sprint 1 validation pipeline."""
+    console.print(f"[bold cyan]Starting data quality validation from {source}...[/bold cyan]\n")
+    
+    from src.validation import DataValidator, ValidationExpectations
+    from src.models import get_session
+    from src.models.ec_standard import ECStandard
+    from src.models.certificador import Certificador
+    import json
+    
+    # Initialize validator
+    expectations = ValidationExpectations()
+    if strict:
+        expectations.MIN_EC_STANDARDS = 1500
+        expectations.MIN_CERTIFICADORES = 200
+    
+    validator = DataValidator(expectations)
+    
+    # Load data based on source
+    items = []
+    
+    if source == "database":
+        with get_session() as session:
+            # Load EC Standards
+            if entity_type in ["all", "ec_standards"]:
+                query = session.query(ECStandard)
+                if sample_size:
+                    query = query.limit(sample_size)
+                
+                for ec in query.all():
+                    items.append({
+                        'ec_clave': ec.ec_clave,
+                        'titulo': ec.titulo,
+                        'version': ec.version,
+                        'vigente': ec.vigente,
+                        'sector': ec.sector,
+                        'sector_id': ec.sector_id,
+                        'comite': ec.comite,
+                        'comite_id': ec.comite_id,
+                        'descripcion': ec.descripcion,
+                        'nivel': ec.nivel,
+                        'duracion_horas': ec.duracion_horas,
+                        'tipo_norma': ec.tipo_norma,
+                        'fecha_publicacion': ec.fecha_publicacion.isoformat() if ec.fecha_publicacion else None,
+                        'fecha_vigencia': ec.fecha_vigencia.isoformat() if ec.fecha_vigencia else None,
+                        'renec_url': ec.renec_url
+                    })
+            
+            # Load Certificadores
+            if entity_type in ["all", "certificadores"]:
+                query = session.query(Certificador)
+                if sample_size:
+                    query = query.limit(sample_size)
+                
+                for cert in query.all():
+                    items.append({
+                        'cert_id': cert.cert_id,
+                        'tipo': cert.tipo,
+                        'nombre_legal': cert.nombre_legal,
+                        'siglas': cert.siglas,
+                        'estatus': cert.estatus,
+                        'estado': cert.estado,
+                        'estado_inegi': cert.estado_inegi,
+                        'municipio': cert.municipio,
+                        'cp': cert.cp,
+                        'telefono': cert.telefono,
+                        'correo': cert.correo,
+                        'sitio_web': cert.sitio_web,
+                        'representante_legal': cert.representante_legal,
+                        'fecha_acreditacion': cert.fecha_acreditacion.isoformat() if cert.fecha_acreditacion else None,
+                        'estandares_acreditados': cert.estandares_acreditados,
+                        'src_url': cert.src_url
+                    })
+    
+    elif source == "json" and input_file:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                items = data
+            elif isinstance(data, dict):
+                for values in data.values():
+                    if isinstance(values, list):
+                        items.extend(values)
+    
+    elif source == "csv" and input_file:
+        import csv
+        with open(input_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            items = list(reader)
+    
+    if not items:
+        console.print("[red]No items found to validate[/red]")
+        raise typer.Exit(1)
+    
+    console.print(f"Loaded {len(items)} items for validation")
+    
+    # Run validation
+    with typer.progressbar(items, label="Validating items") as progress:
+        for item in progress:
+            validator.validate_item(item)
+    
+    # Generate report
+    report = validator.generate_validation_report()
+    
+    # Display summary
+    console.print("\n" + "="*60)
+    console.print("[bold cyan]VALIDATION SUMMARY[/bold cyan]")
+    console.print("="*60)
+    
+    summary = report['summary']
+    console.print(f"Total Items: {summary['total_items']}")
+    console.print(f"Valid Items: [green]{summary['valid_items']}[/green] ({summary['validation_rate']:.1%})")
+    console.print(f"Invalid Items: [red]{summary['invalid_items']}[/red]")
+    
+    # Coverage status
+    console.print("\n[bold]Coverage Status:[/bold]")
+    for entity, met in report['coverage_status'].items():
+        status = "[green]✅[/green]" if met else "[red]❌[/red]"
+        console.print(f"  {status} {entity}")
+    
+    # Entity breakdown
+    if report['by_entity_type']:
+        console.print("\n[bold]Validation by Entity Type:[/bold]")
+        table = Table()
+        table.add_column("Entity", style="cyan")
+        table.add_column("Total", justify="right")
+        table.add_column("Valid", justify="right", style="green")
+        table.add_column("Invalid", justify="right", style="red")
+        table.add_column("Rate", justify="right")
+        
+        for entity, stats in report['by_entity_type'].items():
+            table.add_row(
+                entity,
+                str(stats['total']),
+                str(stats['valid']),
+                str(stats['invalid']),
+                f"{stats['validation_rate']:.1%}"
+            )
+        
+        console.print(table)
+    
+    # Common errors
+    if report['common_errors']:
+        console.print("\n[bold]Most Common Errors:[/bold]")
+        error_table = Table()
+        error_table.add_column("Error", style="yellow")
+        error_table.add_column("Count", justify="right", style="red")
+        
+        for error in report['common_errors'][:5]:
+            error_table.add_row(error['error'], str(error['count']))
+        
+        console.print(error_table)
+    
+    # Save report
+    output.parent.mkdir(parents=True, exist_ok=True)
+    validator.save_validation_report(report, str(output))
+    
+    console.print(f"\n[green]✅ Validation report saved to: {output}[/green]")
+    
+    # Exit with error code if validation failed
+    if summary['validation_rate'] < 0.95:
+        console.print("\n[red]⚠️  Validation rate below 95% threshold[/red]")
+        raise typer.Exit(1)
