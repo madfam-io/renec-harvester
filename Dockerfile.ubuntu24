@@ -1,20 +1,39 @@
-# Multi-stage Dockerfile for RENEC Harvester
-FROM python:3.11-slim as base
+# Multi-stage Dockerfile for RENEC Harvester - Ubuntu 24.04 optimized
+FROM ubuntu:24.04 as base
 
-# Set environment variables
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set Python environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 
-# Install system dependencies and Playwright prerequisites
+# Install Python 3.11 and system dependencies
 RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    python3-pip \
     gcc \
+    g++ \
+    make \
     curl \
-    gnupg \
     wget \
+    gnupg \
     ca-certificates \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Create Python 3.11 symlinks
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+
+# Upgrade pip
+RUN python -m pip install --upgrade pip setuptools wheel
 
 # Create app user
 RUN groupadd -r harvester && useradd -r -g harvester harvester
@@ -26,8 +45,8 @@ WORKDIR /app
 COPY requirements.txt requirements-dev.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers with manual dependency installation
-# This handles Ubuntu 24.04 compatibility issues
+# Install Playwright dependencies for Ubuntu 24.04
+# Using the t64 variants of libraries where applicable
 RUN apt-get update && apt-get install -y \
     libnss3 \
     libnspr4 \
@@ -49,8 +68,21 @@ RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libcairo2 \
     libasound2t64 \
-    && rm -rf /var/lib/apt/lists/* \
-    && playwright install chromium
+    libgtk-3-0 \
+    libgdk-pixbuf-2.0-0 \
+    libglib2.0-0 \
+    fonts-liberation \
+    libappindicator3-1 \
+    libnss3-dev \
+    libgdk-pixbuf2.0-dev \
+    libgtk-3-dev \
+    libxss1 \
+    xdg-utils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Playwright browsers (without --with-deps)
+RUN playwright install chromium
 
 # Development stage
 FROM base as development

@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  harvester:
+    build:
+      context: .
+      dockerfile: Dockerfile.ubuntu24
+      target: development
+    container_name: renec-harvester
+    environment:
+      - DATABASE_URL=postgresql://renec:renec_secure_pass@postgres:5432/renec_harvester
+      - REDIS_URL=redis://:renec_redis_pass@redis:6379/0
+      - ENVIRONMENT=development
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./artifacts:/app/artifacts
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+      - "9091:9091"
+    command: python -m src.cli status
+    networks:
+      - default
+
+  # All other services remain the same, extending from docker-compose.yml
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+
+  redis-commander:
+    extends:
+      file: docker-compose.yml
+      service: redis-commander
+
+  flower:
+    extends:
+      file: docker-compose.yml
+      service: flower
+
+  prometheus:
+    extends:
+      file: docker-compose.yml
+      service: prometheus
+
+  grafana:
+    extends:
+      file: docker-compose.yml
+      service: grafana
+
+  pgadmin:
+    extends:
+      file: docker-compose.yml
+      service: pgadmin
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  pgadmin_data:
+
+networks:
+  default:
+    name: renec-network

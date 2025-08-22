@@ -63,8 +63,41 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
 
+    - name: Install Playwright dependencies for Ubuntu 24.04
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libasound2t64 \
+          libatk-bridge2.0-0 \
+          libatk1.0-0 \
+          libatspi2.0-0 \
+          libcairo2 \
+          libcups2 \
+          libdbus-1-3 \
+          libdrm2 \
+          libgbm1 \
+          libglib2.0-0 \
+          libgtk-3-0 \
+          libnspr4 \
+          libnss3 \
+          libpango-1.0-0 \
+          libx11-6 \
+          libx11-xcb1 \
+          libxcb1 \
+          libxcomposite1 \
+          libxdamage1 \
+          libxext6 \
+          libxfixes3 \
+          libxkbcommon0 \
+          libxrandr2 \
+          libxshmfence1 \
+          xvfb \
+          fonts-liberation \
+          libu2f-udev \
+          libvulkan1
+    
     - name: Install Playwright browsers
-      run: playwright install --with-deps chromium
+      run: playwright install chromium
 
     - name: Set up environment variables
       run: |
