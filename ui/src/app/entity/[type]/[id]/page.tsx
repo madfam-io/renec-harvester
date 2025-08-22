@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import { ArrowLeft, Award, Building, MapPin, Briefcase, Calendar, Globe, Phone, Mail, User } from 'lucide-react'
+import { formatDate, formatDateTime } from '../../../../../utils/dateUtils'
 
 interface EntityDetail {
   // EC Standard
@@ -200,13 +201,13 @@ export default function EntityDetailPage() {
                     <div>
                       <dt className="text-sm text-gray-500">Publication Date</dt>
                       <dd className="text-gray-900">
-                        {entity.fecha_publicacion ? new Date(entity.fecha_publicacion).toLocaleDateString() : 'N/A'}
+                        {formatDate(entity.fecha_publicacion)}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-sm text-gray-500">Validity Date</dt>
                       <dd className="text-gray-900">
-                        {entity.fecha_vigencia ? new Date(entity.fecha_vigencia).toLocaleDateString() : 'N/A'}
+                        {formatDate(entity.fecha_vigencia)}
                       </dd>
                     </div>
                   </dl>
@@ -430,13 +431,13 @@ export default function EntityDetailPage() {
               <div>
                 <dt className="text-gray-500">First Seen</dt>
                 <dd className="text-gray-700">
-                  {entity.first_seen ? new Date(entity.first_seen).toLocaleString() : 'N/A'}
+                  {formatDateTime(entity.first_seen)}
                 </dd>
               </div>
               <div>
                 <dt className="text-gray-500">Last Updated</dt>
                 <dd className="text-gray-700">
-                  {entity.last_seen ? new Date(entity.last_seen).toLocaleString() : 'N/A'}
+                  {formatDateTime(entity.last_seen)}
                 </dd>
               </div>
             </dl>

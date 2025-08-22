@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import DataStats from '@/components/DataStats'
-import SpiderControl from '@/components/SpiderControl'
-import EntityFinder from '@/components/EntityFinder'
-import NetworkVisualization from '@/components/NetworkVisualization'
+import DataStats from '../../components/DataStats'
+import SpiderControl from '../../components/SpiderControl'
+import EntityFinder from '../../components/EntityFinder'
+import NetworkVisualization from '../../components/NetworkVisualization'
 import { Database, Search, Network, Activity } from 'lucide-react'
 
 export default function DashboardPage() {

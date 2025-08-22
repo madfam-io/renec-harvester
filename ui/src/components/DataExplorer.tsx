@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Search, Download, Eye, Filter, RefreshCw } from 'lucide-react'
+import { getDownloadFilename } from '../../utils/dateUtils'
 
 interface DataItem {
   id: string
@@ -103,7 +104,7 @@ export default function DataExplorer() {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `renec_data_${new Date().toISOString().split('T')[0]}.${format}`
+        a.download = getDownloadFilename(format)
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
