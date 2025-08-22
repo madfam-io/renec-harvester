@@ -1,0 +1,35 @@
+# CodeQL configuration file for RENEC Harvester
+# This file configures which queries to run during code scanning
+
+name: "RENEC Harvester CodeQL Config"
+
+# Specify the languages to analyze
+languages:
+  - python
+  - javascript
+
+# Define the queries to run
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# Paths to include in the analysis
+paths:
+  - src
+  - ui/src
+
+# Paths to exclude from the analysis
+paths-ignore:
+  - tests
+  - "**/*.test.js"
+  - "**/*.test.ts"
+  - "**/node_modules"
+  - "**/venv"
+  - "**/__pycache__"
+
+# Additional query packs to use
+packs:
+  # Python security queries
+  - codeql/python-queries:codeql-suites/python-security-extended.qls
+  # JavaScript security queries  
+  - codeql/javascript-queries:codeql-suites/javascript-security-extended.qls
