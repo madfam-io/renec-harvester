@@ -14,42 +14,38 @@ from .base import Base
 class Centro(Base):
     """Centro de Evaluación model."""
     
-    __tablename__ = 'centros'
+    __tablename__ = 'centros_v2'
     
     # Primary key
     id = Column(Integer, primary_key=True)
     
     # Core fields
     centro_id = Column(String(50), unique=True, nullable=False, index=True)
-    nombre = Column(String(200), nullable=False)
-    cert_id = Column(String(50), ForeignKey('certificadores.cert_id'))
+    nombre = Column(String(300), nullable=False)
+    certificador_id = Column(String(50), ForeignKey('certificadores_v2.cert_id'))
     
     # Location
-    domicilio_texto = Column(Text)
-    estado = Column(String(50))
+    estado = Column(String(100))
     estado_inegi = Column(String(2), index=True)
-    municipio = Column(String(100))
-    cp = Column(String(5))
+    municipio = Column(String(200))
+    domicilio = Column(Text)
     
     # Contact
-    telefono = Column(String(20))
-    correo = Column(String(100))
-    responsable = Column(String(200))
+    telefono = Column(String(100))
+    extension = Column(String(20))
+    correo = Column(String(200))
+    sitio_web = Column(String(500))
+    coordinador = Column(String(200))
     
-    # Details
-    fecha_acreditacion = Column(Date)
-    modalidades = Column(JSONB)  # List of evaluation modalities
-    estandares_evaluacion = Column(JSONB)  # List of EC codes
-    
-    # Source
-    src_url = Column(Text, nullable=False)
+    # Source and metadata
+    src_url = Column(String(500))
+    content_hash = Column(String(64))
     
     # Temporal tracking
     first_seen = Column(DateTime, server_default=func.now(), nullable=False)
     last_seen = Column(DateTime, server_default=func.now(), nullable=False)
-    
-    # Change detection
-    row_hash = Column(String(64))
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     def __repr__(self):
         return f"<Centro(centro_id='{self.centro_id}', nombre='{self.nombre[:50]}...')>"
@@ -60,20 +56,20 @@ class Centro(Base):
             'id': self.id,
             'centro_id': self.centro_id,
             'nombre': self.nombre,
-            'cert_id': self.cert_id,
-            'domicilio_texto': self.domicilio_texto,
+            'certificador_id': self.certificador_id,
+            'domicilio': self.domicilio,
             'estado': self.estado,
             'estado_inegi': self.estado_inegi,
             'municipio': self.municipio,
-            'cp': self.cp,
             'telefono': self.telefono,
+            'extension': self.extension,
             'correo': self.correo,
-            'responsable': self.responsable,
-            'fecha_acreditacion': self.fecha_acreditacion.isoformat() if self.fecha_acreditacion else None,
-            'modalidades': self.modalidades,
-            'estandares_evaluacion': self.estandares_evaluacion,
+            'sitio_web': self.sitio_web,
+            'coordinador': self.coordinador,
             'src_url': self.src_url,
+            'content_hash': self.content_hash,
             'first_seen': self.first_seen.isoformat() if self.first_seen else None,
             'last_seen': self.last_seen.isoformat() if self.last_seen else None,
-            'row_hash': self.row_hash
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

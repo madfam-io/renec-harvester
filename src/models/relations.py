@@ -17,10 +17,9 @@ class ECEEC(Base):
     __tablename__ = 'ece_ec'
     
     id = Column(Integer, primary_key=True)
-    cert_id = Column(String(50), ForeignKey('certificadores.cert_id', ondelete='CASCADE'), nullable=False)
-    ec_clave = Column(String(10), ForeignKey('ec_standards.ec_clave', ondelete='CASCADE'), nullable=False)
+    cert_id = Column(String(50), ForeignKey('certificadores_v2.cert_id', ondelete='CASCADE'), nullable=False)
+    ec_clave = Column(String(10), ForeignKey('ec_standards_v2.ec_clave', ondelete='CASCADE'), nullable=False)
     acreditado_desde = Column(Date)
-    run_id = Column(String(50), nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     __table_args__ = (
@@ -37,9 +36,8 @@ class CentroEC(Base):
     __tablename__ = 'centro_ec'
     
     id = Column(Integer, primary_key=True)
-    centro_id = Column(String(50), ForeignKey('centros.centro_id', ondelete='CASCADE'), nullable=False)
-    ec_clave = Column(String(10), ForeignKey('ec_standards.ec_clave', ondelete='CASCADE'), nullable=False)
-    run_id = Column(String(50), nullable=False)
+    centro_id = Column(String(50), ForeignKey('centros_v2.centro_id', ondelete='CASCADE'), nullable=False)
+    ec_clave = Column(String(10), ForeignKey('ec_standards_v2.ec_clave', ondelete='CASCADE'), nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     __table_args__ = (
@@ -56,9 +54,8 @@ class ECSector(Base):
     __tablename__ = 'ec_sector'
     
     id = Column(Integer, primary_key=True)
-    ec_clave = Column(String(10), ForeignKey('ec_standards.ec_clave', ondelete='CASCADE'), nullable=False)
+    ec_clave = Column(String(10), ForeignKey('ec_standards_v2.ec_clave', ondelete='CASCADE'), nullable=False)
     sector_id = Column(Integer, ForeignKey('sectors.sector_id', ondelete='CASCADE'), nullable=False)
-    comite_id = Column(Integer, ForeignKey('comites.comite_id', ondelete='SET NULL'))
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     __table_args__ = (
@@ -75,24 +72,36 @@ class HarvestRun(Base):
     __tablename__ = 'harvest_runs'
     
     id = Column(Integer, primary_key=True)
-    run_id = Column(String(50), unique=True, nullable=False)
+    harvest_id = Column(String(50), unique=True, nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime)
-    status = Column(String(20), nullable=False)  # running, completed, failed
-    stats = Column(JSONB)  # Statistics about the run
-    errors = Column(JSONB)  # Any errors encountered
+    mode = Column(String(20), nullable=False)
+    spider_name = Column(String(50), nullable=False)
+    items_scraped = Column(Integer)
+    pages_crawled = Column(Integer)
+    errors = Column(Integer)
+    status = Column(String(20), nullable=False)
+    log_file = Column(String(500))
+    run_metadata = Column('metadata', JSONB)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     def __repr__(self):
-        return f"<HarvestRun(run_id='{self.run_id}', status='{self.status}')>"
+        return f"<HarvestRun(harvest_id='{self.harvest_id}', status='{self.status}')>"
     
     def to_dict(self) -> dict:
         """Convert to dictionary."""
         return {
             'id': self.id,
-            'run_id': self.run_id,
+            'harvest_id': self.harvest_id,
             'start_time': self.start_time.isoformat() if self.start_time else None,
             'end_time': self.end_time.isoformat() if self.end_time else None,
+            'mode': self.mode,
+            'spider_name': self.spider_name,
+            'items_scraped': self.items_scraped,
+            'pages_crawled': self.pages_crawled,
+            'errors': self.errors,
             'status': self.status,
-            'stats': self.stats,
-            'errors': self.errors
+            'log_file': self.log_file,
+            'metadata': self.run_metadata,
+            'created_at': self.created_at.isoformat() if self.created_at else None
         }
