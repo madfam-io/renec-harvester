@@ -1,17 +1,22 @@
 """
 Spider control API endpoints.
 """
-from fastapi import APIRouter, HTTPException, Request, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Request, BackgroundTasks, Depends
 from typing import Optional
 
 from ..models import SpiderConfig, SpiderResponse, SpiderStatus
 from ..spider_manager import SpiderManager
+from ..auth import api_key_dependency
 
 router = APIRouter()
 
 
 @router.post("/spider/start", response_model=SpiderResponse)
-async def start_spider(config: SpiderConfig, request: Request):
+async def start_spider(
+    config: SpiderConfig, 
+    request: Request,
+    api_key: str = Depends(api_key_dependency)
+):
     """Start the scraping spider with given configuration."""
     try:
         spider_manager: SpiderManager = request.app.state.spider_manager
