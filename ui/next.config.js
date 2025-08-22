@@ -2,14 +2,19 @@
 const nextConfig = {
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3001', 'localhost:8000']
+      allowedOrigins: process.env.NODE_ENV === 'production' 
+        ? [process.env.NEXT_PUBLIC_APP_URL || 'https://renec-harvester.vercel.app'] 
+        : ['localhost:3001', 'localhost:8000']
     }
   },
   async rewrites() {
+    // In production, API should be hosted separately or use environment variable
+    const apiUrl = process.env.API_URL || 'http://localhost:8000'
+    
     return [
       {
         source: '/api/harvester/:path*',
-        destination: 'http://localhost:8000/api/:path*'
+        destination: `${apiUrl}/api/:path*`
       }
     ]
   },
@@ -28,13 +33,17 @@ const nextConfig = {
   },
   // Security headers to prevent extension injection
   async headers() {
+    const cspValue = process.env.NODE_ENV === 'production'
+      ? `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' ${process.env.API_URL || 'https://api.renec-harvester.com'} https://api.github.com;`
+      : "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' localhost:8000;"
+    
     return [
       {
         source: '/(.*)',
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' localhost:8000;"
+            value: cspValue
           }
         ]
       }

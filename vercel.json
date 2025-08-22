@@ -1,0 +1,18 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "cd ui && npm run build",
+  "outputDirectory": "ui/.next",
+  "installCommand": "cd ui && npm install",
+  "devCommand": "cd ui && npm run dev",
+  "functions": {
+    "ui/src/app/**/*.{js,jsx,ts,tsx}": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/ui/$1"
+    }
+  ]
+}
