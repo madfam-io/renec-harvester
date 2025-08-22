@@ -1,0 +1,96 @@
+{
+  "app": {
+    "name": "Cosechador RENEC",
+    "title": "Cosechador de Datos RENEC",
+    "description": "Herramienta para extraer y analizar datos del Registro Nacional de Estándares de Competencia",
+    "version": "Versión"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "dashboard": "Panel de Control",
+    "harvest": "Cosechar",
+    "monitor": "Monitoreo", 
+    "data": "Datos",
+    "reports": "Reportes",
+    "settings": "Configuración",
+    "help": "Ayuda",
+    "docs": "Documentación"
+  },
+  "actions": {
+    "start": "Iniciar",
+    "stop": "Detener",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "export": "Exportar",
+    "import": "Importar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "refresh": "Actualizar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "download": "Descargar",
+    "upload": "Subir",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "finish": "Finalizar"
+  },
+  "status": {
+    "loading": "Cargando...",
+    "ready": "Listo",
+    "running": "Ejecutándose",
+    "paused": "Pausado",
+    "stopped": "Detenido",
+    "completed": "Completado",
+    "error": "Error",
+    "warning": "Advertencia",
+    "success": "Éxito",
+    "idle": "Inactivo",
+    "processing": "Procesando",
+    "pending": "Pendiente"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "auto": "Automático",
+    "switchTheme": "Cambiar tema",
+    "currentTheme": "Tema actual"
+  },
+  "language": {
+    "spanish": "Español",
+    "english": "English",
+    "switchLanguage": "Cambiar idioma",
+    "currentLanguage": "Idioma actual"
+  },
+  "time": {
+    "seconds": "segundos",
+    "minutes": "minutos",
+    "hours": "horas",
+    "days": "días",
+    "ago": "hace",
+    "remaining": "restantes",
+    "elapsed": "transcurrido",
+    "estimated": "estimado",
+    "justNow": "justo ahora",
+    "today": "hoy",
+    "yesterday": "ayer",
+    "tomorrow": "mañana"
+  },
+  "numbers": {
+    "items": "{count, plural, =0 {sin elementos} =1 {1 elemento} other {# elementos}}",
+    "results": "{count, plural, =0 {sin resultados} =1 {1 resultado} other {# resultados}}",
+    "selected": "{count, plural, =0 {ninguno seleccionado} =1 {1 seleccionado} other {# seleccionados}}"
+  },
+  "welcome": {
+    "title": "¡Bienvenido!",
+    "subtitle": "Comencemos a explorar los datos del RENEC",
+    "getStarted": "Comenzar",
+    "learnMore": "Aprender más",
+    "skipIntro": "Omitir introducción"
+  }
+}

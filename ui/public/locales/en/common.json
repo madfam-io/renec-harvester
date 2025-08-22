@@ -1,0 +1,96 @@
+{
+  "app": {
+    "name": "RENEC Harvester",
+    "title": "RENEC Data Harvester",
+    "description": "Tool for extracting and analyzing data from the National Registry of Competency Standards",
+    "version": "Version"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "harvest": "Harvest",
+    "monitor": "Monitor",
+    "data": "Data",
+    "reports": "Reports",
+    "settings": "Settings",
+    "help": "Help",
+    "docs": "Documentation"
+  },
+  "actions": {
+    "start": "Start",
+    "stop": "Stop",
+    "pause": "Pause",
+    "resume": "Resume",
+    "export": "Export",
+    "import": "Import",
+    "search": "Search",
+    "filter": "Filter",
+    "refresh": "Refresh",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish"
+  },
+  "status": {
+    "loading": "Loading...",
+    "ready": "Ready",
+    "running": "Running",
+    "paused": "Paused",
+    "stopped": "Stopped",
+    "completed": "Completed",
+    "error": "Error",
+    "warning": "Warning",
+    "success": "Success",
+    "idle": "Idle",
+    "processing": "Processing",
+    "pending": "Pending"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto",
+    "switchTheme": "Switch theme",
+    "currentTheme": "Current theme"
+  },
+  "language": {
+    "spanish": "Español",
+    "english": "English",
+    "switchLanguage": "Switch language",
+    "currentLanguage": "Current language"
+  },
+  "time": {
+    "seconds": "seconds",
+    "minutes": "minutes",
+    "hours": "hours",
+    "days": "days",
+    "ago": "ago",
+    "remaining": "remaining",
+    "elapsed": "elapsed",
+    "estimated": "estimated",
+    "justNow": "just now",
+    "today": "today",
+    "yesterday": "yesterday",
+    "tomorrow": "tomorrow"
+  },
+  "numbers": {
+    "items": "{count, plural, =0 {no items} =1 {1 item} other {# items}}",
+    "results": "{count, plural, =0 {no results} =1 {1 result} other {# results}}",
+    "selected": "{count, plural, =0 {none selected} =1 {1 selected} other {# selected}}"
+  },
+  "welcome": {
+    "title": "Welcome!",
+    "subtitle": "Let's start exploring RENEC data",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "skipIntro": "Skip introduction"
+  }
+}

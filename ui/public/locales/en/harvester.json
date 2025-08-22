@@ -1,0 +1,95 @@
+{
+  "title": "Harvester Control",
+  "description": "Configure and execute the data extraction process",
+  "config": {
+    "title": "Configuration",
+    "mode": {
+      "label": "Operation Mode",
+      "crawl": "Crawl",
+      "harvest": "Harvest",
+      "crawlDescription": "Maps site structure without extracting data",
+      "harvestDescription": "Extracts all available data"
+    },
+    "concurrency": {
+      "label": "Concurrent Requests",
+      "description": "Number of pages downloaded simultaneously",
+      "help": "More requests = faster but uses more resources"
+    },
+    "delay": {
+      "label": "Request Delay",
+      "description": "Wait time between each request (seconds)",
+      "help": "Higher delay reduces server load"
+    },
+    "maxDepth": {
+      "label": "Maximum Depth",
+      "description": "Maximum navigation levels",
+      "help": "Limits how deep the harvester navigates"
+    },
+    "timeout": {
+      "label": "Timeout",
+      "description": "Maximum time per request (seconds)",
+      "help": "Prevents harvester from getting stuck on slow pages"
+    }
+  },
+  "controls": {
+    "start": "Start Harvest",
+    "stop": "Stop Harvest",
+    "pause": "Pause",
+    "resume": "Resume",
+    "restart": "Restart",
+    "clear": "Clear Data"
+  },
+  "status": {
+    "title": "Current Status",
+    "idle": "Idle - Ready to start",
+    "starting": "Starting harvester...",
+    "running": "Harvesting data...",
+    "paused": "Harvest paused",
+    "stopping": "Stopping harvester...",
+    "completed": "Harvest completed",
+    "error": "Harvest error",
+    "stats": {
+      "processed": "Pages processed",
+      "extracted": "Data extracted",
+      "errors": "Errors found",
+      "duration": "Duration",
+      "speed": "Speed",
+      "memory": "Memory used",
+      "progress": "Progress"
+    }
+  },
+  "results": {
+    "title": "Harvest Results",
+    "summary": "Summary",
+    "standards": "EC Standards",
+    "certifiers": "Certifiers",
+    "centers": "Evaluation Centers",
+    "sectors": "Sectors",
+    "committees": "Committees",
+    "total": "Total records",
+    "new": "New records",
+    "updated": "Updated records",
+    "unchanged": "Unchanged"
+  },
+  "errors": {
+    "title": "Errors Found",
+    "network": "Network error",
+    "timeout": "Timeout",
+    "parsing": "Data processing error",
+    "validation": "Validation error",
+    "unknown": "Unknown error",
+    "retry": "Retry",
+    "ignore": "Ignore",
+    "viewDetails": "View details"
+  },
+  "messages": {
+    "startConfirm": "Are you sure you want to start the harvest?",
+    "stopConfirm": "Stop harvest in progress? {count} pending pages will be lost.",
+    "clearConfirm": "Delete all harvested data? This action cannot be undone.",
+    "harvestComplete": "Harvest completed successfully!",
+    "harvestStopped": "Harvest stopped by user",
+    "harvestError": "Harvest encountered errors. Check logs for details.",
+    "noConfig": "Configure parameters before starting",
+    "alreadyRunning": "Harvester is already running"
+  }
+}

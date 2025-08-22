@@ -1,0 +1,165 @@
+{
+  "title": "Gestión de Datos",
+  "description": "Explore, busque y exporte los datos cosechados",
+  "search": {
+    "title": "Buscar",
+    "placeholder": "Buscar estándares, certificadores, centros...",
+    "advanced": "Búsqueda avanzada",
+    "filters": "Filtros",
+    "clear": "Limpiar búsqueda",
+    "noResults": "No se encontraron resultados",
+    "searching": "Buscando...",
+    "tips": {
+      "title": "Consejos de búsqueda",
+      "exact": "Use comillas para búsqueda exacta",
+      "exclude": "Use - para excluir términos",
+      "wildcard": "Use * como comodín"
+    }
+  },
+  "filters": {
+    "title": "Filtrar por",
+    "type": "Tipo de entidad",
+    "status": "Estado",
+    "date": "Rango de fechas",
+    "sector": "Sector",
+    "state": "Estado (ubicación)",
+    "apply": "Aplicar filtros",
+    "reset": "Restablecer",
+    "active": "{count} filtros activos"
+  },
+  "entities": {
+    "ecStandard": "Estándar EC",
+    "ecStandards": "Estándares EC",
+    "certifier": "Certificador",
+    "certifiers": "Certificadores",
+    "center": "Centro de Evaluación",
+    "centers": "Centros de Evaluación",
+    "sector": "Sector",
+    "sectors": "Sectores",
+    "committee": "Comité",
+    "committees": "Comités"
+  },
+  "table": {
+    "columns": {
+      "id": "ID",
+      "code": "Código",
+      "name": "Nombre",
+      "title": "Título",
+      "type": "Tipo",
+      "status": "Estado",
+      "sector": "Sector",
+      "state": "Estado",
+      "createdAt": "Creado",
+      "updatedAt": "Actualizado",
+      "actions": "Acciones"
+    },
+    "pagination": {
+      "showing": "Mostrando {from} a {to} de {total}",
+      "perPage": "Por página",
+      "first": "Primera",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "last": "Última",
+      "goToPage": "Ir a página"
+    },
+    "sort": {
+      "sortBy": "Ordenar por",
+      "ascending": "Ascendente",
+      "descending": "Descendente"
+    },
+    "selection": {
+      "selectAll": "Seleccionar todo",
+      "deselectAll": "Deseleccionar todo",
+      "selected": "{count} seleccionados"
+    }
+  },
+  "details": {
+    "title": "Detalles",
+    "generalInfo": "Información General",
+    "metadata": "Metadatos",
+    "relationships": "Relaciones",
+    "history": "Historial",
+    "close": "Cerrar detalles",
+    "copyId": "Copiar ID",
+    "viewSource": "Ver fuente",
+    "openInRenec": "Abrir en RENEC"
+  },
+  "export": {
+    "title": "Exportar Datos",
+    "description": "Descargue los datos en el formato que necesite",
+    "format": {
+      "label": "Formato de archivo",
+      "json": "JSON",
+      "csv": "CSV",
+      "excel": "Excel",
+      "xml": "XML"
+    },
+    "options": {
+      "title": "Opciones de exportación",
+      "includeMetadata": "Incluir metadatos",
+      "dateFormat": "Formato de fecha",
+      "encoding": "Codificación",
+      "compression": "Comprimir archivo"
+    },
+    "selection": {
+      "all": "Todos los datos",
+      "filtered": "Datos filtrados ({count})",
+      "selected": "Elementos seleccionados ({count})"
+    },
+    "progress": {
+      "preparing": "Preparando exportación...",
+      "generating": "Generando archivo...",
+      "compressing": "Comprimiendo...",
+      "ready": "Archivo listo para descargar"
+    },
+    "download": "Descargar",
+    "email": "Enviar por correo",
+    "schedule": "Programar exportación"
+  },
+  "import": {
+    "title": "Importar Datos",
+    "description": "Cargue datos desde un archivo",
+    "dropzone": {
+      "text": "Arrastre archivos aquí o haga clic para seleccionar",
+      "hint": "Formatos soportados: JSON, CSV, Excel"
+    },
+    "validation": {
+      "checking": "Validando archivo...",
+      "valid": "Archivo válido",
+      "invalid": "Archivo inválido",
+      "errors": "{count} errores encontrados",
+      "warnings": "{count} advertencias"
+    },
+    "mapping": {
+      "title": "Mapeo de campos",
+      "auto": "Mapeo automático",
+      "manual": "Mapeo manual",
+      "source": "Campo origen",
+      "target": "Campo destino",
+      "skip": "Omitir"
+    },
+    "options": {
+      "updateExisting": "Actualizar registros existentes",
+      "skipDuplicates": "Omitir duplicados",
+      "validateData": "Validar datos antes de importar"
+    },
+    "preview": {
+      "title": "Vista previa",
+      "showing": "Mostrando primeros {count} registros",
+      "willImport": "Se importarán {count} registros",
+      "willUpdate": "Se actualizarán {count} registros",
+      "willSkip": "Se omitirán {count} registros"
+    }
+  },
+  "stats": {
+    "title": "Estadísticas",
+    "overview": "Resumen General",
+    "total": "Total",
+    "active": "Activos",
+    "inactive": "Inactivos",
+    "growth": "Crecimiento",
+    "lastUpdate": "Última actualización",
+    "dataQuality": "Calidad de datos",
+    "coverage": "Cobertura"
+  }
+}

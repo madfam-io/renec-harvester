@@ -1,0 +1,95 @@
+{
+  "title": "Control del Cosechador",
+  "description": "Configure y ejecute el proceso de extracción de datos",
+  "config": {
+    "title": "Configuración",
+    "mode": {
+      "label": "Modo de Operación",
+      "crawl": "Mapeo",
+      "harvest": "Cosecha",
+      "crawlDescription": "Mapea la estructura del sitio sin extraer datos",
+      "harvestDescription": "Extrae todos los datos disponibles"
+    },
+    "concurrency": {
+      "label": "Solicitudes Concurrentes",
+      "description": "Número de páginas que se descargan al mismo tiempo",
+      "help": "Más solicitudes = más rápido pero usa más recursos"
+    },
+    "delay": {
+      "label": "Retraso entre Solicitudes",
+      "description": "Tiempo de espera entre cada solicitud (segundos)",
+      "help": "Un retraso mayor reduce la carga en el servidor"
+    },
+    "maxDepth": {
+      "label": "Profundidad Máxima",
+      "description": "Niveles máximos de navegación",
+      "help": "Limita qué tan profundo navega el cosechador"
+    },
+    "timeout": {
+      "label": "Tiempo de Espera",
+      "description": "Tiempo máximo para cada solicitud (segundos)",
+      "help": "Evita que el cosechador se atasque en páginas lentas"
+    }
+  },
+  "controls": {
+    "start": "Iniciar Cosecha",
+    "stop": "Detener Cosecha",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "restart": "Reiniciar",
+    "clear": "Limpiar Datos"
+  },
+  "status": {
+    "title": "Estado Actual",
+    "idle": "Inactivo - Listo para comenzar",
+    "starting": "Iniciando cosechador...",
+    "running": "Cosechando datos...",
+    "paused": "Cosecha pausada",
+    "stopping": "Deteniendo cosechador...",
+    "completed": "Cosecha completada",
+    "error": "Error en la cosecha",
+    "stats": {
+      "processed": "Páginas procesadas",
+      "extracted": "Datos extraídos",
+      "errors": "Errores encontrados",
+      "duration": "Duración",
+      "speed": "Velocidad",
+      "memory": "Memoria usada",
+      "progress": "Progreso"
+    }
+  },
+  "results": {
+    "title": "Resultados de la Cosecha",
+    "summary": "Resumen",
+    "standards": "Estándares EC",
+    "certifiers": "Certificadores",
+    "centers": "Centros de Evaluación",
+    "sectors": "Sectores",
+    "committees": "Comités",
+    "total": "Total de registros",
+    "new": "Nuevos registros",
+    "updated": "Registros actualizados",
+    "unchanged": "Sin cambios"
+  },
+  "errors": {
+    "title": "Errores Encontrados",
+    "network": "Error de red",
+    "timeout": "Tiempo de espera agotado",
+    "parsing": "Error al procesar datos",
+    "validation": "Error de validación",
+    "unknown": "Error desconocido",
+    "retry": "Reintentar",
+    "ignore": "Ignorar",
+    "viewDetails": "Ver detalles"
+  },
+  "messages": {
+    "startConfirm": "¿Está seguro de que desea iniciar la cosecha?",
+    "stopConfirm": "¿Detener la cosecha en progreso? Se perderán {count} páginas pendientes.",
+    "clearConfirm": "¿Eliminar todos los datos cosechados? Esta acción no se puede deshacer.",
+    "harvestComplete": "¡Cosecha completada exitosamente!",
+    "harvestStopped": "Cosecha detenida por el usuario",
+    "harvestError": "La cosecha encontró errores. Revise el registro para más detalles.",
+    "noConfig": "Configure los parámetros antes de iniciar",
+    "alreadyRunning": "El cosechador ya está en ejecución"
+  }
+}

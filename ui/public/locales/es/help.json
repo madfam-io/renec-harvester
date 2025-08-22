@@ -1,0 +1,181 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "¡Bienvenido al Cosechador RENEC!",
+      "description": "Esta herramienta le permite extraer y analizar datos del Registro Nacional de Estándares de Competencia de manera fácil y eficiente.",
+      "features": {
+        "title": "¿Qué puede hacer?",
+        "harvest": "Extraer datos actualizados del RENEC",
+        "search": "Buscar y filtrar información específica",
+        "export": "Exportar datos en múltiples formatos",
+        "track": "Seguir cambios y actualizaciones"
+      },
+      "getStarted": "Comenzar el recorrido",
+      "skipTour": "Ya conozco la herramienta"
+    },
+    "tour": {
+      "step1": {
+        "title": "Panel de Control",
+        "content": "Aquí puede ver un resumen de todos los datos disponibles y el estado del sistema."
+      },
+      "step2": {
+        "title": "Cosechador",
+        "content": "Use esta sección para configurar y ejecutar el proceso de extracción de datos del RENEC."
+      },
+      "step3": {
+        "title": "Explorador de Datos",
+        "content": "Busque, filtre y explore todos los datos cosechados de manera interactiva."
+      },
+      "step4": {
+        "title": "Exportación",
+        "content": "Descargue los datos en el formato que necesite: Excel, CSV, JSON o XML."
+      },
+      "step5": {
+        "title": "Configuración",
+        "content": "Personalice la aplicación según sus preferencias: idioma, tema y más."
+      }
+    },
+    "tooltips": {
+      "themeSwitch": "Cambie entre tema claro, oscuro o automático",
+      "languageSwitch": "Cambie el idioma de la interfaz",
+      "helpButton": "Acceda a la ayuda y documentación",
+      "searchBar": "Busque por código, nombre o cualquier término",
+      "filterButton": "Aplique filtros avanzados a su búsqueda",
+      "exportButton": "Exporte los datos seleccionados",
+      "refreshButton": "Actualice los datos mostrados",
+      "settingsButton": "Acceda a la configuración"
+    }
+  },
+  "guides": {
+    "quickStart": {
+      "title": "Inicio Rápido",
+      "steps": [
+        {
+          "title": "1. Configure el Cosechador",
+          "description": "Vaya a la sección 'Cosechar' y seleccione el modo de operación.",
+          "tip": "Use el modo 'Mapeo' primero para explorar la estructura."
+        },
+        {
+          "title": "2. Inicie la Cosecha",
+          "description": "Haga clic en 'Iniciar Cosecha' y espere a que termine.",
+          "tip": "Una cosecha completa puede tomar 15-20 minutos."
+        },
+        {
+          "title": "3. Explore los Datos",
+          "description": "Use la sección 'Datos' para buscar y filtrar información.",
+          "tip": "Use los filtros para encontrar datos específicos más rápido."
+        },
+        {
+          "title": "4. Exporte Resultados",
+          "description": "Seleccione los datos y expórtelos en su formato preferido.",
+          "tip": "Excel es el formato más compatible para análisis."
+        }
+      ]
+    },
+    "advanced": {
+      "title": "Guías Avanzadas",
+      "harvesting": {
+        "title": "Optimización de la Cosecha",
+        "content": "Aprenda a configurar el cosechador para máximo rendimiento y confiabilidad."
+      },
+      "searching": {
+        "title": "Búsqueda Avanzada",
+        "content": "Domine las técnicas de búsqueda para encontrar exactamente lo que necesita."
+      },
+      "automation": {
+        "title": "Automatización",
+        "content": "Configure cosechas programadas y exportaciones automáticas."
+      },
+      "api": {
+        "title": "Uso del API",
+        "content": "Integre el cosechador con sus propios sistemas usando nuestra API."
+      }
+    }
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "questions": [
+      {
+        "q": "¿Qué es el RENEC?",
+        "a": "El Registro Nacional de Estándares de Competencia es el catálogo oficial de estándares de competencia laboral en México, administrado por CONOCER."
+      },
+      {
+        "q": "¿Con qué frecuencia se actualizan los datos?",
+        "a": "Recomendamos ejecutar la cosecha semanalmente para mantener los datos actualizados. El RENEC se actualiza continuamente."
+      },
+      {
+        "q": "¿Puedo programar cosechas automáticas?",
+        "a": "Sí, en la configuración puede establecer cosechas programadas diarias, semanales o mensuales."
+      },
+      {
+        "q": "¿Qué formatos de exportación están disponibles?",
+        "a": "Puede exportar en JSON, CSV, Excel (XLSX) y XML. Excel es recomendado para análisis en hojas de cálculo."
+      },
+      {
+        "q": "¿Cuánto tiempo toma una cosecha completa?",
+        "a": "Una cosecha completa típicamente toma entre 15-20 minutos, dependiendo de la velocidad de conexión y la carga del servidor."
+      },
+      {
+        "q": "¿Qué significan los diferentes modos de cosecha?",
+        "a": "Mapeo: solo explora la estructura sin extraer datos. Cosecha: extrae todos los datos disponibles."
+      },
+      {
+        "q": "¿Cómo puedo buscar un estándar específico?",
+        "a": "Use la barra de búsqueda con el código EC (ej: EC0001) o palabras clave del título."
+      },
+      {
+        "q": "¿Los datos incluyen históricos?",
+        "a": "Sí, el sistema guarda versiones anteriores y puede mostrar cambios entre actualizaciones."
+      }
+    ]
+  },
+  "glossary": {
+    "title": "Glosario",
+    "terms": {
+      "ec": "Estándar de Competencia - Documento que describe conocimientos, habilidades y actitudes de una función laboral",
+      "ece": "Entidad de Certificación y Evaluación - Organización autorizada para evaluar y certificar competencias",
+      "oc": "Organismo Certificador - Institución acreditada para certificar personas en estándares de competencia",
+      "conocer": "Consejo Nacional de Normalización y Certificación de Competencias Laborales",
+      "renec": "Registro Nacional de Estándares de Competencia",
+      "harvester": "Cosechador - Herramienta que extrae datos de fuentes web de manera automatizada",
+      "spider": "Araña - Programa que navega y extrae información de sitios web",
+      "crawl": "Mapeo - Proceso de explorar la estructura de un sitio web",
+      "scraping": "Extracción - Proceso de obtener datos de páginas web",
+      "api": "Interfaz de Programación de Aplicaciones - Permite que programas se comuniquen entre sí",
+      "endpoint": "Punto de acceso - URL específica de una API",
+      "concurrency": "Concurrencia - Número de operaciones simultáneas",
+      "rate_limit": "Límite de frecuencia - Restricción en el número de solicitudes por tiempo"
+    }
+  },
+  "support": {
+    "title": "Soporte",
+    "channels": {
+      "documentation": {
+        "title": "Documentación",
+        "description": "Guías completas y referencias técnicas",
+        "action": "Ver documentación"
+      },
+      "community": {
+        "title": "Comunidad",
+        "description": "Pregunte y comparta con otros usuarios",
+        "action": "Visitar foro"
+      },
+      "tickets": {
+        "title": "Tickets de Soporte",
+        "description": "Reporte problemas o solicite ayuda directa",
+        "action": "Crear ticket"
+      },
+      "updates": {
+        "title": "Actualizaciones",
+        "description": "Novedades y mejoras del sistema",
+        "action": "Ver changelog"
+      }
+    },
+    "contact": {
+      "title": "Contacto",
+      "email": "soporte@cosechador-renec.mx",
+      "hours": "Lunes a Viernes, 9:00 - 18:00 hrs",
+      "response": "Tiempo de respuesta: 24-48 horas"
+    }
+  }
+}

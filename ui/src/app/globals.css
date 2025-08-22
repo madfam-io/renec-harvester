@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import consolidated theme system */
+@import '../styles/themes.css';
+
 /* Block VS Code extension styles */
 html {
   /* Force unset any VS Code CSS variables */
@@ -16,27 +19,110 @@ body[style*="--vsc-"] {
   all: revert !important;
 }
 
+/* Root styles */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Body styles */
+body {
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color var(--transition-base), 
+              color var(--transition-base),
+              border-color var(--transition-base),
+              box-shadow var(--transition-base);
+}
+
+/* Disable transitions for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  margin: 0;
+/* Selection colors */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Theme-aware utilities */
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
+  
+  .bg-surface-elevated {
+    background-color: var(--color-surface-elevated);
+  }
+  
+  .text-primary {
+    color: var(--color-text-primary);
+  }
+  
+  .text-secondary {
+    color: var(--color-text-secondary);
+  }
+  
+  .text-tertiary {
+    color: var(--color-text-tertiary);
+  }
+  
+  .border-default {
+    border-color: var(--color-border);
+  }
+  
+  .border-subtle {
+    border-color: var(--color-border-subtle);
+  }
+  
+  .shadow-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .shadow-md {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .shadow-lg {
+    box-shadow: var(--shadow-lg);
   }
 }

@@ -1,0 +1,130 @@
+{
+  "general": {
+    "title": "Error",
+    "unknown": "Ha ocurrido un error desconocido",
+    "tryAgain": "Intentar de nuevo",
+    "goBack": "Volver",
+    "reportIssue": "Reportar problema",
+    "errorCode": "Código de error"
+  },
+  "network": {
+    "title": "Error de Red",
+    "offline": "Sin conexión a internet",
+    "timeout": "Tiempo de espera agotado",
+    "serverError": "Error del servidor",
+    "notFound": "Recurso no encontrado",
+    "forbidden": "Acceso denegado",
+    "unauthorized": "No autorizado",
+    "badRequest": "Solicitud inválida",
+    "tooManyRequests": "Demasiadas solicitudes",
+    "serviceUnavailable": "Servicio no disponible",
+    "messages": {
+      "checkConnection": "Por favor, verifique su conexión a internet",
+      "serverDown": "El servidor no está respondiendo. Intente más tarde",
+      "accessDenied": "No tiene permisos para acceder a este recurso",
+      "loginRequired": "Debe iniciar sesión para continuar",
+      "slowDown": "Ha excedido el límite de solicitudes. Espere un momento"
+    }
+  },
+  "validation": {
+    "title": "Error de Validación",
+    "required": "Este campo es obligatorio",
+    "invalid": "Valor inválido",
+    "tooShort": "Demasiado corto (mínimo {min} caracteres)",
+    "tooLong": "Demasiado largo (máximo {max} caracteres)",
+    "pattern": "Formato inválido",
+    "email": "Correo electrónico inválido",
+    "url": "URL inválida",
+    "number": "Debe ser un número",
+    "integer": "Debe ser un número entero",
+    "positive": "Debe ser un número positivo",
+    "date": "Fecha inválida",
+    "past": "La fecha debe estar en el pasado",
+    "future": "La fecha debe estar en el futuro",
+    "range": "Debe estar entre {min} y {max}",
+    "unique": "Este valor ya existe",
+    "fileType": "Tipo de archivo no permitido",
+    "fileSize": "El archivo es demasiado grande (máximo {max}MB)"
+  },
+  "harvester": {
+    "title": "Error del Cosechador",
+    "alreadyRunning": "El cosechador ya está en ejecución",
+    "notConfigured": "El cosechador no está configurado correctamente",
+    "connectionFailed": "No se pudo conectar al sitio RENEC",
+    "parseError": "Error al procesar la página",
+    "rateLimit": "Límite de frecuencia excedido",
+    "blocked": "Acceso bloqueado por el servidor",
+    "incomplete": "La cosecha terminó de forma incompleta",
+    "noData": "No se encontraron datos para cosechar",
+    "solutions": {
+      "configure": "Verifique la configuración del cosechador",
+      "wait": "Espere unos minutos antes de intentar nuevamente",
+      "reduce": "Reduzca el número de solicitudes concurrentes",
+      "contact": "Si el problema persiste, contacte al administrador"
+    }
+  },
+  "data": {
+    "title": "Error de Datos",
+    "notFound": "No se encontraron los datos solicitados",
+    "corrupted": "Los datos están corruptos",
+    "inconsistent": "Inconsistencia en los datos",
+    "duplicate": "Registro duplicado",
+    "foreignKey": "Error de referencia",
+    "constraint": "Violación de restricción",
+    "migration": "Error de migración",
+    "export": "Error al exportar",
+    "import": "Error al importar",
+    "messages": {
+      "checkFilters": "Verifique sus filtros de búsqueda",
+      "refreshData": "Intente actualizar los datos",
+      "contactSupport": "Los datos pueden estar dañados. Contacte soporte",
+      "fixReferences": "Hay referencias rotas en los datos",
+      "retryExport": "No se pudo generar el archivo. Intente nuevamente"
+    }
+  },
+  "auth": {
+    "title": "Error de Autenticación",
+    "invalidCredentials": "Credenciales inválidas",
+    "sessionExpired": "Su sesión ha expirado",
+    "accessDenied": "Acceso denegado",
+    "accountLocked": "Cuenta bloqueada",
+    "passwordExpired": "Contraseña expirada",
+    "twoFactorRequired": "Se requiere autenticación de dos factores",
+    "actions": {
+      "login": "Iniciar sesión",
+      "resetPassword": "Restablecer contraseña",
+      "contactAdmin": "Contactar administrador",
+      "verifyAccount": "Verificar cuenta"
+    }
+  },
+  "system": {
+    "title": "Error del Sistema",
+    "outOfMemory": "Memoria insuficiente",
+    "diskFull": "Espacio en disco insuficiente",
+    "configError": "Error de configuración",
+    "dependencyError": "Error de dependencia",
+    "permissionDenied": "Permiso denegado",
+    "maintenance": "Sistema en mantenimiento",
+    "messages": {
+      "freeMemory": "Libere memoria cerrando otras aplicaciones",
+      "freeDisk": "Libere espacio en disco",
+      "checkConfig": "Verifique el archivo de configuración",
+      "updateDependencies": "Actualice las dependencias del sistema",
+      "checkPermissions": "Verifique los permisos del archivo/directorio",
+      "waitMaintenance": "El sistema está en mantenimiento. Vuelva más tarde"
+    }
+  },
+  "recovery": {
+    "title": "Recuperación de Errores",
+    "suggestions": "Sugerencias",
+    "commonSolutions": "Soluciones comunes",
+    "needHelp": "¿Necesita ayuda?",
+    "viewDocs": "Ver documentación",
+    "searchHelp": "Buscar en la ayuda",
+    "askCommunity": "Preguntar a la comunidad",
+    "createTicket": "Crear ticket de soporte",
+    "errorDetails": "Detalles del error",
+    "copyError": "Copiar error",
+    "shareError": "Compartir error"
+  }
+}
